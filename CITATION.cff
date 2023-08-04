@@ -1,0 +1,11 @@
+cff-version: 1.1.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: "Van Thieu"
+    given-names: "Nguyen"
+    orcid: "https://orcid.org/0000-0001-9994-8747"
+title: "MetaCluster: Metaheuristic Algorithm for Feature Selection - An Open Source Python Library"
+version: 1.0.0
+doi: 10.5281/zenodo.8214539
+date-released: 2023-08-04
+url: "https://github.com/thieu1995/metacluster"

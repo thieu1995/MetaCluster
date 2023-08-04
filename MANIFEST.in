@@ -1,2 +1,2 @@
-include README.md LICENSE CODE_OF_CONDUCT.md
+include README.md LICENSE CODE_OF_CONDUCT.md CITATION.cff
 include metacluster/data/*.csv
