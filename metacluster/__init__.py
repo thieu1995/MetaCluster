@@ -31,7 +31,7 @@
 # model = MetaCluster(list_optimizer=list_optimizer, list_paras=list_paras, list_obj=list_obj, n_trials=3)
 # model.execute(data=data, cluster_finder="elbow", list_metric=list_metric, save_path="history", verbose=False)
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"
 
 from metacluster.utils.encoder import LabelEncoder
 from metacluster.utils.data_loader import Data, get_dataset
