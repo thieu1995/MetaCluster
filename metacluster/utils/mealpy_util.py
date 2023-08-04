@@ -60,20 +60,20 @@ class KCenterClusteringProblem(Problem):
         results = evaluator.get_metrics_by_list_names(list_metric, list_paras)
         return results
 
-    def amend_position(self, position=None, lb=None, ub=None):
-        n_features = self.data.X.shape[1]
-        n_clusters = int(len(position) / n_features)
-        pos = np.clip(position, lb, ub)
-        centers = np.reshape(pos, (n_clusters, n_features))
-        y_pred = self.get_y_pred(self.data.X, centers)
-        while len(np.unique(y_pred, return_counts=True)[0]) == 1:
-            centers[np.random.randint(0, n_clusters)] = np.random.uniform(lb[:n_features], ub[:n_features])
-            y_pred = self.get_y_pred(self.data.X, centers)
-        return centers.flatten()
+    # def amend_position(self, position=None, lb=None, ub=None):
+    #     n_features = self.data.X.shape[1]
+    #     n_clusters = int(len(position) / n_features)
+    #     pos = np.clip(position, lb, ub)
+    #     centers = np.reshape(pos, (n_clusters, n_features))
+    #     y_pred = self.get_y_pred(self.data.X, centers)
+    #     while len(np.unique(y_pred, return_counts=True)[0]) == 1:
+    #         centers[np.random.randint(0, n_clusters)] = np.random.uniform(lb[:n_features], ub[:n_features])
+    #         y_pred = self.get_y_pred(self.data.X, centers)
+    #     return centers.flatten()
 
     def fit_func(self, solution):
         centers = np.reshape(solution, (-1, self.data.X.shape[1]))
         y_pred = self.get_y_pred(self.data.X, centers)
-        evaluator = ClusteringMetric(y_true=self.data.y, y_pred=y_pred, X=self.data.X)
+        evaluator = ClusteringMetric(y_true=self.data.y, y_pred=y_pred, X=self.data.X, raise_error=False)
         obj = evaluator.get_metric_by_name(self.obj_name, paras=self.obj_paras)[self.obj_name]
         return obj

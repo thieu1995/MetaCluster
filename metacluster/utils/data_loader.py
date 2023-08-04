@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 from sklearn.model_selection import train_test_split
+from sklearn import preprocessing
 
 
 class Data:
@@ -22,6 +23,11 @@ class Data:
     y : np.ndarray, Optional, default=None
         The labels of your data, for clustering problem, this can be None
     """
+
+    SUPPORT = {
+        "scaler": ["StandardScaler", "MinMaxScaler", "MaxAbsScaler", "RobustScaler", "Normalizer"]
+    }
+
     def __init__(self, X, y=None, name="Unknown"):
         self.X = X
         self.y = y
@@ -41,6 +47,14 @@ class Data:
                         train_size=train_size, random_state=random_state, shuffle=shuffle, stratify=stratify)
         if not inplace:
             return self.X_train, self.X_test, self.y_train, self.y_test
+
+    @staticmethod
+    def scale(X, method="MinMaxScaler", **kwargs):
+        if method in Data.SUPPORT["scaler"]:
+            scaler = getattr(preprocessing, method)(**kwargs)
+            data = scaler.fit_transform(X)
+            return data, scaler
+        raise ValueError(f"Data class doesn't support scaling method name: {method}")
 
     def set_train_test(self, X_train=None, y_train=None, X_test=None, y_test=None):
         """
