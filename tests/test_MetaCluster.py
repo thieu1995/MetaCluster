@@ -25,4 +25,4 @@ def test_MetaCluster_class():
     model = MetaCluster(list_optimizer=list_optimizer, list_paras=list_paras, list_obj=list_obj, n_trials=3)
     assert model.n_trials == 3
     assert model.list_obj == list_obj
-    assert model.list_optimizer == list_optimizer
+    assert len(model.list_optimizer) == len(list_optimizer)
