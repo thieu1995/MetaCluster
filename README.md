@@ -18,7 +18,7 @@
 [![Chat](https://img.shields.io/badge/Chat-on%20Telegram-blue)](https://t.me/+fRVCJGuGJg1mNDg1)
 ![GitHub contributors](https://img.shields.io/github/contributors/thieu1995/metacluster.svg)
 [![GitTutorial](https://img.shields.io/badge/PR-Welcome-%23FF8300.svg?)](https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project)
-[![DOI](https://zenodo.org/badge/545209353.svg)](https://doi.org/10.5281/zenodo.7969042)
+[![DOI](https://zenodo.org/badge/670197315.svg)](https://zenodo.org/badge/latestdoi/670197315)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 
@@ -182,14 +182,23 @@ Remember to set the name to your dataset, because the folder that hold your resu
 Please include these citations if you plan to use this library:
 
 ```code 
-@software{nguyen_van_thieu_2023_7969043,
+@software{nguyen_van_thieu_2023_8214540,
   author       = {Nguyen Van Thieu},
   title        = {MetaCluster: Metaheuristic Algorithm for Feature Selection - An Open Source Python Library},
-  month        = may,
+  month        = aug,
   year         = 2023,
   publisher    = {Zenodo},
-  doi          = {10.5281/zenodo.7969042},
+  doi          = {10.5281/zenodo.8214539},
   url          = {https://github.com/thieu1995/metacluster}
+}
+
+@article{van2023mealpy,
+  title={MEALPY: An open-source library for latest meta-heuristic algorithms in Python},
+  author={Van Thieu, Nguyen and Mirjalili, Seyedali},
+  journal={Journal of Systems Architecture},
+  year={2023},
+  publisher={Elsevier},
+  doi={10.1016/j.sysarc.2023.102871}
 }
 ```
 
