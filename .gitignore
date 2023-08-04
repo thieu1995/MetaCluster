@@ -1,15 +1,14 @@
+
 .github
 docs/
-examples/
 tests/
 ChangeLog.md
 CITATION.cff
 MANIFEST.in
-run_fs.py
+run_KCenterClustering.py
 .flake8
-
-
-examples/wrapper/history/
+examples/history/
+examples/wrapper/
 # Pycharm
 .idea/
 tut_upcode.md
