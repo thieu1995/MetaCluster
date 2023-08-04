@@ -1,0 +1,2 @@
+include README.md LICENSE CODE_OF_CONDUCT.md
+include metacluster/data/*.csv

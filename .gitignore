@@ -1,12 +1,7 @@
 
-.github
 docs/
-tests/
 ChangeLog.md
 CITATION.cff
-MANIFEST.in
-run_KCenterClustering.py
-.flake8
 examples/history/
 examples/wrapper/
 # Pycharm
