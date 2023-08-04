@@ -28,7 +28,7 @@ class MetaCluster:
         List of strings that represent class optimizer or list of instance of Optimizer class from Mealpy library.
         Current supported optimizers, please check it here: https://github.com/thieu1995/mealpy
         If a custom optimizer is passed, make sure it is an instance of `Optimizer` class.
-        Please use this to get supported optimizers: MetaCluster.get_support()
+        Please use this to get supported optimizers: MetaCluster.get_support(name="optimizer")
 
     list_paras: list, default=None
         List of dictionaries that present the parameters of each Optimizer class.
@@ -37,7 +37,7 @@ class MetaCluster:
     list_obj : list, default=None
         List of strings that represent objective name.
         Current supported objectives, please check it here: https://github.com/thieu1995/permetrics
-        Please us this to get supported objectives: MetaCluster.get_support()
+        Please use this to get supported objectives: MetaCluster.get_support(name="obj")
 
     n_trials : int, default=5
         The number of runs for each optimizer for each objective
@@ -46,25 +46,26 @@ class MetaCluster:
     --------
     The following example shows how to use  the most informative features in the MhaSelector FS method
 
-    >>> import pandas as pd
-    >>> from metacluster.wrapper.mha import MhaSelector
-    >>> # load dataset
-    >>> dataset = pd.read_csv('your_path/dataset.csv', index_col=0).values
-    >>> X, y = dataset[:, 0:-1], dataset[:, -1]     # Assumption that the last column is label column
-    >>> # define metacluster feature selection method
-    >>> feat_selector = MhaSelector(problem="classification", estimator="rf", optimizer="BaseGA")
-    >>> # find all relevant features - 5 features should be selected
-    >>> feat_selector.fit(X, y)
-    >>> # check selected features - True (or 1) is selected, False (or 0) is not selected
-    >>> print(feat_selector.selected_feature_masks)
-    array([ True, True, True, False, False, True, False, False, False, True])
-    >>> print(feat_selector.selected_feature_solution)
-    array([ 1, 1, 1, 0, 0, 1, 0, 0, 0, 1])
-    >>> # check the index of selected features
-    >>> print(feat_selector.selected_feature_indexes)
-    array([ 0, 1, 2, 5, 9])
-    >>> # call transform() on X to filter it down to selected features
-    >>> X_filtered = feat_selector.transform(X)
+    >>> from metacluster import get_dataset, MetaCluster
+    >>> from sklearn.preprocessing import MinMaxScaler
+    >>>
+    >>> scaler = MinMaxScaler(feature_range=(0, 1))
+    >>> data = get_dataset("aniso")
+    >>> data.X = scaler.fit_transform(data.X)
+    >>>
+    >>> # Get all supported methods and print them out
+    >>> MetaCluster.get_support(name="all")
+    >>>
+    >>> list_optimizer = ["BaseFBIO", "OriginalGWO", "OriginalSMA"]
+    >>> list_paras = [
+    >>>    {"name": "FBIO", "epoch": 10, "pop_size": 30},
+    >>>    {"name": "GWO", "epoch": 10, "pop_size": 30},
+    >>>    {"name": "SMA", "epoch": 10, "pop_size": 30}
+    >>> ]
+    >>> list_obj = ["BHI", "MIS", "XBI"]
+    >>> list_metric = ["BRI", "DBI", "DRI", "DI", "KDI"]
+    >>> model = MetaCluster(list_optimizer=list_optimizer, list_paras=list_paras, list_obj=list_obj, n_trials=3)
+    >>> model.execute(data=data, cluster_finder="elbow", list_metric=list_metric, save_path="history", verbose=False)
     """
 
     SUPPORT = {
@@ -81,16 +82,32 @@ class MetaCluster:
         "optimizer": list(get_all_optimizers().keys())
     }
 
+    FILENAME_LABELS = "result_labels"
+    FILENAME_METRICS = "result_metrics"
+    FILENAME_METRICS_MEAN = "result_metrics_min"
+    FILENAME_METRICS_STD = "result_metrics_mean"
+    FILENAME_CONVERGENCES = "result_convergences"
+    HYPHEN_SYMBOL = "="
+
     def __init__(self, list_optimizer=None, list_paras=None, list_obj=None, n_trials=5):
         self.list_optimizer, self.list_paras = self._set_list_optimizer(list_optimizer, list_paras)
         self.list_obj = self._set_list_function(list_obj, name="objectives")
         self.n_trials = n_trials
 
     @staticmethod
-    def get_support():
-        for key, value in MetaCluster.SUPPORT.items():
-            print(f"Supported values for: {key} are: ")
-            print(value)
+    def get_support(name="all", verbose=True):
+        if name == "all":
+            if verbose:
+                for key, value in MetaCluster.SUPPORT.items():
+                    print(f"Supported methods for '{key}' are: ")
+                    print(value)
+            return MetaCluster.SUPPORT
+        if name in list(MetaCluster.SUPPORT.keys()):
+            if verbose:
+                print(f"Supported methods for '{name}' are: ")
+                print(MetaCluster.SUPPORT[name])
+            return MetaCluster.SUPPORT[name]
+        raise ValueError(f"MetaCluster doesn't support {name}.")
 
     def _set_list_function(self, list_obj=None, name="objectives"):
         if type(list_obj) in (list, tuple, np.ndarray):
@@ -130,14 +147,14 @@ class MetaCluster:
         return list_opts, list_paras
 
     def __run__(self, model, problem, mode="single", n_workers=2, termination=None):
-        _, best_fitness = model.solve(problem, mode=mode, n_workers=n_workers, termination=termination)
+        best_position, best_fitness = model.solve(problem, mode=mode, n_workers=n_workers, termination=termination)
         return {
             "best_fitness": best_fitness,
-            "best_solution": model.solution,
+            "best_solution": best_position,
             "convergence": model.history.list_global_best_fit
         }
 
-    def execute(self, data=None, cluster_finder="elbow", list_metrics=None, save_path="history", save_figures=True,
+    def execute(self, data=None, cluster_finder="elbow", list_metric=None, save_path="history", save_figures=True,
             verbose=True, mode='single', n_workers=None, termination=None):
         """
         Parameters
@@ -149,7 +166,7 @@ class MetaCluster:
         cluster_finder : str, default="elbow".
             The method to find the optimal number of clusters in data
 
-        list_metrics : list, default=None
+        list_metric : list, default=None
             List of performance metrics that supported by the library: https://github.com/thieu1995/permetrics
             To get the supported metrics, please use: MetaCluster.get_support(), supported obj are supported metrics
 
@@ -185,7 +202,7 @@ class MetaCluster:
         ub = np.max(data.X, axis=0).tolist() * n_clusters
         obj_paras = {"decimal": 4}
         log_to = "console" if verbose else "None"
-        list_metrics = self._set_list_function(list_metrics, name="metrics")
+        list_metric = self._set_list_function(list_metric, name="metrics")
 
         ## Check parent directories
         save_path = f"{save_path}/{data.get_name()}"
@@ -197,26 +214,27 @@ class MetaCluster:
 
                 list_dict = []
                 for idx_trial, trial in enumerate(range(self.n_trials)):
+                    print(f"MetaCluster are working on: optimizer={opt.get_name()}, obj={obj}, trial={trial+1}")
                     minmax = self.SUPPORT["obj"][obj]
-                    prob = KCenterClusteringProblem(lb, ub, minmax, obj_paras=obj_paras, log_to=log_to)
+                    prob = KCenterClusteringProblem(lb, ub, minmax, data=data, obj_name=obj, obj_paras=obj_paras, log_to=log_to)
                     list_problems.append(prob)
 
                     time_run = time.perf_counter()
                     res = self.__run__(opt, prob, mode=mode, n_workers=n_workers, termination=termination)
                     time_run = round(time_run, 5)
                     y_pred = prob.get_y_pred(data.X, res["best_solution"])
-                    y_pred = "-".join(y_pred.tolist())      # Convert all labels to single string to save to csv file.
-                    conv = "-".join(res["convergence"])
-                    dict_metrics = prob.get_metrics(res["best_solution"], list_metrics)
+                    y_pred = self.HYPHEN_SYMBOL.join(map(str, y_pred))     # Convert all labels to single string to save to csv file.
+                    conv = self.HYPHEN_SYMBOL.join(map(str, res["convergence"]))
+                    dict_metrics = prob.get_metrics(res["best_solution"], list_metric)
 
                     ## Save result_labels.csv file
                     dict1 = {"optimizer": opt.get_name(), "obj": obj, "n_clusters": n_clusters, "y_pred": y_pred}
-                    write_dict_to_csv(dict1, save_path=save_path, file_name="result_labels.csv")
+                    write_dict_to_csv(dict1, save_path=save_path, file_name=self.FILENAME_LABELS)
 
                     ## Save result_metrics.csv file
                     dict2 = {"optimizer": opt.get_name(), "obj": obj, "trial": trial+1, "n_clusters": n_clusters, "time_run": time_run}
                     dict3 = {**dict2, **dict_metrics}
-                    write_dict_to_csv(dict3, save_path=save_path, file_name="result_metrics.csv")
+                    write_dict_to_csv(dict3, save_path=save_path, file_name=self.FILENAME_METRICS)
 
                     ## Save results for metrics-min and metrics-std
                     dict4 = {"time_run": time_run, **dict_metrics}
@@ -224,7 +242,7 @@ class MetaCluster:
 
                     ## Save result_convergence.csv
                     dict5 = {"optimizer": opt.get_name(), "obj": obj, "trial": trial+1, "n_clusters": n_clusters, "fitness": conv}
-                    write_dict_to_csv(dict5, save_path=save_path, file_name="result_convergences.csv")
+                    write_dict_to_csv(dict5, save_path=save_path, file_name=self.FILENAME_CONVERGENCES)
 
                 ## Save result_metrics_min.csv and result_metrics_std.csv file
                 df0 = pd.DataFrame(list_dict)
@@ -232,37 +250,37 @@ class MetaCluster:
                 dict_std = df0.std().to_dict()
                 dict_mean = {"optimizer": opt.get_name(), "obj": obj, "n_clusters": n_clusters, **dict_mean}
                 dict_std = {"optimizer": opt.get_name(), "obj": obj, "n_clusters": n_clusters, **dict_std}
-                write_dict_to_csv(dict_mean, save_path=save_path, file_name="result_metrics_min.csv")
-                write_dict_to_csv(dict_std, save_path=save_path, file_name="result_metrics_std.csv")
+                write_dict_to_csv(dict_mean, save_path=save_path, file_name=self.FILENAME_METRICS_MEAN)
+                write_dict_to_csv(dict_std, save_path=save_path, file_name=self.FILENAME_METRICS_STD)
 
         if save_figures:
-            for idx_metric, metric in enumerate(list_metrics):
-                df = pd.read_csv(f"{save_path}/result_metrics.csv", usecols=["optimizer", "obj", metric])
+            for idx_metric, metric in enumerate(list_metric):
+                df = pd.read_csv(f"{save_path}/{self.FILENAME_METRICS}.csv", usecols=["optimizer", "obj", metric])
                 for idx_obj, obj in enumerate(self.list_obj):
-                    df_draw = df[df["obj"] == obj]["optimizer", metric]
+                    df_draw = df[df["obj"] == obj][["optimizer", metric]]
                     export_boxplot_figures(df_draw, file_name=f"boxplot-{obj}-{metric}", save_path=save_path)
 
-            df = pd.read_csv(f"{save_path}/result_convergences.csv", usecols=["optimizer", "obj", "trial", "fitness"])
+            df = pd.read_csv(f"{save_path}/{self.FILENAME_CONVERGENCES}.csv", usecols=["optimizer", "obj", "trial", "fitness"])
             for idx_obj, obj in enumerate(self.list_obj):
                 ## Draw convergence for single trial
                 for idx_trial, trial in enumerate(range(self.n_trials)):
-                    df_draw = df[(df["obj"] == obj) & (df["trial"] == trial+1)]["optimizer", "fitness"]
+                    df_draw = df[(df["obj"] == obj) & (df["trial"] == trial+1)][["optimizer", "fitness"]]
                     df_draw.set_index("optimizer", inplace=True)
                     dict_draw = df_draw.to_dict()["fitness"]
                     for key, value in dict_draw.items():
-                        dict_draw[key] = np.array(value.split("-"), dtype=float)
+                        dict_draw[key] = np.array(value.split(self.HYPHEN_SYMBOL), dtype=float)
                     df_draw = pd.DataFrame(dict_draw)
                     export_convergence_figures(df_draw, file_name=f"convergence-{obj}-{trial+1}", save_path=save_path)
 
                 ## Draw mean convergence of all trials
-                df_draw = df[df["obj"] == obj]["optimizer", 'fitness']
+                df_draw = df[df["obj"] == obj][["optimizer", 'fitness']]
                 mylist = df_draw.values.tolist()
                 dict_mean = {}
                 for idx, item in enumerate(mylist):
                     if item[0] in dict_mean:
-                        dict_mean[item[0]].append(np.array(item[1].split("-"), dtype=float))
+                        dict_mean[item[0]].append(np.array(item[1].split(self.HYPHEN_SYMBOL), dtype=float))
                     else:
-                        dict_mean[item[0]] = [np.array(item[1].split("-"), dtype=float)]
+                        dict_mean[item[0]] = [np.array(item[1].split(self.HYPHEN_SYMBOL), dtype=float)]
                 for key, value in dict_mean.items():
                     dict_mean[key] = np.mean(value, axis=0)
                 df_draw = pd.DataFrame(dict_mean)
