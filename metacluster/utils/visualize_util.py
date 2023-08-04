@@ -42,6 +42,7 @@ def export_convergence_figures(df, xlabel="Epoch", ylabel="Fitness value",
     if title is None:
         title = ""
     # Melt the DataFrame to convert it from wide to long format
+    df = df.reset_index()
     df_long = pd.melt(df, id_vars='index', var_name='Column', value_name='Value')
     # Define the line chart using Plotly Express
     fig = px.line(df_long, x='index', y='Value', color='Column', labels={'index': xlabel, 'Value': ylabel, 'Column': 'Optimizer'})
