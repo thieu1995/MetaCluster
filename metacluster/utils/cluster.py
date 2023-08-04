@@ -4,15 +4,6 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-"""
-https://jtemporal.com/kmeans-and-elbow-method/
-https://medium.com/@masarudheena/4-best-ways-to-find-optimal-number-of-clusters-for-clustering-with-python-code-706199fa957c
-https://github.com/minddrummer/gap/blob/master/gap/gap.py
-https://www.tandfonline.com/doi/pdf/10.1080/03610927408827101
-https://doi.org/10.1016/j.engappai.2018.03.013
-https://github.com/tirthajyoti/Machine-Learning-with-Python/blob/master/Clustering-Dimensionality-Reduction/Clustering_metrics.ipynb
-"""
-
 from sklearn.cluster import KMeans
 from sklearn.mixture import GaussianMixture
 from sklearn import metrics
