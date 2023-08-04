@@ -21,11 +21,12 @@ def write_dict_to_csv(data:dict, save_path=None, file_name=None):
         None
     """
     save_file = f"{save_path}/{file_name}.csv"
-    file_exists = Path(save_file)
+    Path(save_path).mkdir(parents=True, exist_ok=True)
+    is_file_existed = Path(save_file).exists()
 
     with open(save_file, mode='a', newline='') as file:
         writer = csv.DictWriter(file, fieldnames=data.keys())
-        if not file_exists:
+        if not is_file_existed:
             writer.writeheader()
         writer.writerow(data)
     return None

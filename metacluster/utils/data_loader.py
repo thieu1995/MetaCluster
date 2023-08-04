@@ -82,13 +82,11 @@ def get_dataset(dataset_name):
 
     if dataset_name not in list_datasets:
         print(f"MetaCluster currently does not have '{dataset_name}' data in its database....")
-        display = input("Enter 1 to see the available datasets: ") or 0
-        if display:
-            print("+ List of the supported datasets are:")
-            for idx, dataset in enumerate(list_datasets):
-                print(f"\t{idx + 1}: {dataset}")
+        print("+ List of the supported datasets are:")
+        for idx, dataset in enumerate(list_datasets):
+            print(f"\t{idx + 1}: {dataset}")
     else:
         df = pd.read_csv(f"{dir_root}/{dataset_name}.csv", header=None)
-        data = Data(np.array(df.iloc[:, 0:-1]), np.array(df.iloc[:, -1]))
+        data = Data(np.array(df.iloc[:, 0:-1]), np.array(df.iloc[:, -1]), name=dataset_name)
         print(f"Requested dataset: {dataset_name} found and loaded!")
         return data
