@@ -15,7 +15,7 @@ def readme():
 
 setup(
     name="metacluster",
-    version="1.0.0",
+    version="1.0.1",
     author="Thieu",
     author_email="nguyenthieu2102@gmail.com",
     description="MetaCluster: An Open-Source Python Library for Metaheuristic-based Clustering Problems",
@@ -70,7 +70,7 @@ setup(
         "Topic :: Utilities",
     ],
     install_requires=["numpy>=1.17.1", "scipy>=1.7.1", "scikit-learn>=1.0.2",
-                      "pandas>=1.3.5", "mealpy>=2.5.3", "permetrics>=1.4.1",
+                      "pandas>=1.3.5", "mealpy>=2.5.4", "permetrics>=1.4.2",
                       "plotly>=5.10.0", "kaleido>=0.2.1"],
     extras_require={
         "dev": ["pytest>=7.1.2", "pytest-cov==4.0.0", "flake8>=4.0.1"],
