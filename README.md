@@ -1,10 +1,16 @@
 
-<p align="center"><img style="height:300px;" src=".github/img/logo.png" alt="MetaCluster" title="MetaCluster"/></p>
+<p align="center">
+<img style="max-width:100%;" 
+src="https://thieu1995.github.io/post/2023-08/MetaCluster-01.png" 
+alt="MetaCluster"/>
+</p>
+
+
 
 ---
 
 
-[![GitHub release](https://img.shields.io/badge/release-1.0.0-yellow.svg)](https://github.com/thieu1995/metacluster/releases)
+[![GitHub release](https://img.shields.io/badge/release-1.0.1-yellow.svg)](https://github.com/thieu1995/metacluster/releases)
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/metacluster) 
 [![PyPI version](https://badge.fury.io/py/metacluster.svg)](https://badge.fury.io/py/metacluster)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/metacluster.svg)
@@ -40,7 +46,7 @@ clustering problem in Python
 
 * Install the [current PyPI release](https://pypi.python.org/pypi/metacluster):
 ```sh 
-$ pip install metacluster==1.0.0
+$ pip install metacluster==1.0.1
 ```
 
 * Install directly from source code
