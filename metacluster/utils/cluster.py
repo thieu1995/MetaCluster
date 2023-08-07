@@ -4,10 +4,19 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
+import numpy as np
+from sklearn import metrics
 from sklearn.cluster import KMeans
 from sklearn.mixture import GaussianMixture
-from sklearn import metrics
-import numpy as np
+from permetrics import ClusteringMetric
+
+
+def get_all_clustering_metrics():
+    dict_results = {}
+    for key, value in ClusteringMetric.SUPPORT.items():
+        if value["type"] in ("min", "max"):
+            dict_results[key] = value["type"]
+    return dict_results
 
 
 ### ELBOW

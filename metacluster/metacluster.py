@@ -74,11 +74,8 @@ class MetaCluster:
                            "calinski_harabasz": "get_clusters_by_calinski_harabasz", "bic": "get_clusters_by_bic",
                            "all_min": "get_clusters_by_all_min", "all_max": "get_clusters_by_all_max",
                            "all_mean": "get_clusters_by_all_mean", "all_majority": "get_clusters_by_all_majority"},
-        "obj": {"BHI": "min", "CHI": "max", "XBI": "min", "BRI": "max", "DBI": "min", "DRI": "min",
-                "DI": "max", "KDI": "min", "LDRI": "min", "LSRI": "min", "SI": "max", "MIS": "max",
-                "NMIS": "max", "RaS": "max", "FMS": "max", "HS": "max", "CS": "max", "VMS": "max",
-                "PrS": "max", "ReS": "max", "FmS": "max", "CDS": "max", "HGS": "max", "JS": "max",
-                "KS": "max", "MNS": "min", "PhS": "max", "RTS": "max", "RRS": "max", "SS1S": "max", "SS2S": "max"},
+        "obj": cluster.get_all_clustering_metrics(),
+        "metrics": cluster.get_all_clustering_metrics(),
         "optimizer": list(get_all_optimizers().keys())
     }
 
