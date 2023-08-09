@@ -23,7 +23,7 @@ def get_all_clustering_metrics():
 def get_clusters_by_elbow(X, list_clusters=None, **kwargs):
     """
     1. First, apply K-means clustering to the dataset for a range of different values of K, where K is the number of clusters. For example, you might try K=1,2,3,...,10.
-    2. For each value of K, compute the Sum of Squared Errors (SSE), which is the sum of the squared distances between each data point and its assigned centroid. The SSE can be obtained from the KMeans object's 'inertia_' attribute.
+    2. For each value of K, compute the Sum of Squared Errors (SSE), which is the sum of the squared distances between each data point and its assigned centroid. The SSE can be obtained from the KMeans object's `inertia_` attribute.
     3. Plot the SSE for each value of K. You should see that the SSE decreases as K increases, because as K increases, the centroids are closer to the data points. However, at some point, increasing K further will not improve the SSE as much. The idea of the elbow method is to identify the value of K at which the SSE starts to level off or decrease less rapidly, forming an "elbow" in the plot. This value of K is considered the optimal number of clusters.
     """
     if type(list_clusters) in (list, tuple, np.ndarray):

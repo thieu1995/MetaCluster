@@ -81,8 +81,8 @@ class MetaCluster:
 
     FILENAME_LABELS = "result_labels"
     FILENAME_METRICS = "result_metrics"
-    FILENAME_METRICS_MEAN = "result_metrics_min"
-    FILENAME_METRICS_STD = "result_metrics_mean"
+    FILENAME_METRICS_MEAN = "result_metrics_mean"
+    FILENAME_METRICS_STD = "result_metrics_std"
     FILENAME_CONVERGENCES = "result_convergences"
     HYPHEN_SYMBOL = "="
 
@@ -241,7 +241,7 @@ class MetaCluster:
                     dict5 = {"optimizer": opt.get_name(), "obj": obj, "trial": trial+1, "n_clusters": n_clusters, "fitness": conv}
                     write_dict_to_csv(dict5, save_path=save_path, file_name=self.FILENAME_CONVERGENCES)
 
-                ## Save result_metrics_min.csv and result_metrics_std.csv file
+                ## Save result_metrics_std.csv and result_metrics_std.csv file
                 df0 = pd.DataFrame(list_dict)
                 dict_mean = df0.mean().to_dict()
                 dict_std = df0.std().to_dict()
