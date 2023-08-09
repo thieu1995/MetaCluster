@@ -1,4 +1,12 @@
 
+# Version 1.0.2
+
++ Update ChangeLog.md, CITATION.cff, MANIFEST.in, README.md
++ Add document website
++ Fix bug in dataset
+
+---------------------------------------------------------------------
+
 # Version 1.0.1
 
 + Add ChangeLog.md 
