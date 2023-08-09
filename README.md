@@ -93,7 +93,7 @@ import pandas as pd
 from metacluster import Data
 
 # load X and y
-# NOTE MetaCluster accepts numpy arrays only, hence the .values attribute
+# NOTE MetaCluster accepts numpy arrays only, hence use the .values attribute
 dataset = pd.read_csv('examples/dataset.csv', index_col=0).values
 X, y = dataset[:, 0:-1], dataset[:, -1]
 data = Data(X, y, name="my-dataset")
@@ -130,8 +130,8 @@ list_paras = [
     {"name": "GWO", "epoch": 10, "pop_size": 30},
     {"name": "SMA", "epoch": 10, "pop_size": 30}
 ]
-list_obj = ["BHI", "MIS", "XBI"]
-list_metric = ["BRI", "DBI", "DRI", "DI", "KDI"]
+list_obj = ["SI", "RSI"]
+list_metric = ["BHI", "DBI", "DI", "CHI", "SSEI", "NMIS", "HS", "CS", "VMS", "HGS"]
 ```
 
 You can check all supported metaheuristic algorithms from: https://github.com/thieu1995/mealpy.
@@ -169,7 +169,6 @@ Remember to set the name to your dataset, because the folder that hold your resu
 * Download releases: https://pypi.org/project/metacluster/
 * Issue tracker: https://github.com/thieu1995/metacluster/issues
 * Notable changes log: https://github.com/thieu1995/metacluster/blob/master/ChangeLog.md
-* Examples with different mealpy version: https://github.com/thieu1995/metacluster/blob/master/examples.md
 * Official chat group: https://t.me/+fRVCJGuGJg1mNDg1
 
 * This project also related to our another projects which are optimization and machine learning. Check it here:
@@ -188,9 +187,9 @@ Remember to set the name to your dataset, because the folder that hold your resu
 Please include these citations if you plan to use this library:
 
 ```code 
-@software{nguyen_van_thieu_2023_8214540,
+@software{van_thieu_nguyen_2023_8220709,
   author       = {Nguyen Van Thieu},
-  title        = {MetaCluster: Metaheuristic Algorithm for Feature Selection - An Open Source Python Library},
+  title        = {MetaCluster: An Open-Source Python Library for Metaheuristic-based Clustering Problems},
   month        = aug,
   year         = 2023,
   publisher    = {Zenodo},
