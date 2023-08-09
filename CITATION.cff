@@ -4,8 +4,8 @@ authors:
   - family-names: "Van Thieu"
     given-names: "Nguyen"
     orcid: "https://orcid.org/0000-0001-9994-8747"
-title: "MetaCluster: Metaheuristic Algorithm for Feature Selection - An Open Source Python Library"
-version: 1.0.1
+title: "MetaCluster: An Open-Source Python Library for Metaheuristic-based Clustering Problems"
+version: 1.0.2
 doi: 10.5281/zenodo.8214539
-date-released: 2023-08-07
+date-released: 2023-08-09
 url: "https://github.com/thieu1995/metacluster"
