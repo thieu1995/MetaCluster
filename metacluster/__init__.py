@@ -24,14 +24,14 @@
 # ]
 #
 # # Set up list objectives and list performance metrics
-# list_obj = ["BHI", "MIS", "XBI"]
-# list_metric = ["BRI", "DBI", "DRI", "DI", "KDI"]
+# list_obj = ["SI", "RSI"]
+# list_metric = ["BHI", "DBI", "DI", "CHI", "SSEI", "NMIS", "HS", "CS", "VMS", "HGS"]
 #
 # # Define MetaCluster model and execute it
 # model = MetaCluster(list_optimizer=list_optimizer, list_paras=list_paras, list_obj=list_obj, n_trials=3)
 # model.execute(data=data, cluster_finder="elbow", list_metric=list_metric, save_path="history", verbose=False)
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 
 from metacluster.utils.encoder import LabelEncoder
 from metacluster.utils.data_loader import Data, get_dataset

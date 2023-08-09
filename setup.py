@@ -15,7 +15,7 @@ def readme():
 
 setup(
     name="metacluster",
-    version="1.0.1",
+    version="1.0.2",
     author="Thieu",
     author_email="nguyenthieu2102@gmail.com",
     description="MetaCluster: An Open-Source Python Library for Metaheuristic-based Clustering Problems",
