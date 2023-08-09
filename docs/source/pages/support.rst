@@ -1,0 +1,63 @@
+================
+Citation Request
+================
+
+Please include these citations if you plan to use this library:::
+
+	@software{van_thieu_nguyen_2023_8220709,
+	  author       = {Nguyen Van Thieu},
+	  title        = {MetaCluster: An Open-Source Python Library for Metaheuristic-based Clustering Problems},
+	  month        = aug,
+	  year         = 2023,
+	  publisher    = {Zenodo},
+	  doi          = {10.5281/zenodo.8214539},
+	  url          = {https://github.com/thieu1995/metacluster}
+	}
+
+	@article{van2023mealpy,
+	  title={MEALPY: An open-source library for latest meta-heuristic algorithms in Python},
+	  author={Van Thieu, Nguyen and Mirjalili, Seyedali},
+	  journal={Journal of Systems Architecture},
+	  year={2023},
+	  publisher={Elsevier},
+	  doi={10.1016/j.sysarc.2023.102871}
+	}
+
+If you have an open-ended or a research question, you can contact me via nguyenthieu2102@gmail.com
+
+===============
+Important links
+===============
+
+* Official source code repo: https://github.com/thieu1995/metacluster
+* Official document: https://metacluster.readthedocs.io/
+* Download releases: https://pypi.org/project/metacluster/
+* Issue tracker: https://github.com/thieu1995/metacluster/issues
+* Notable changes log: https://github.com/thieu1995/metacluster/blob/master/ChangeLog.md
+* Official chat group: https://t.me/+fRVCJGuGJg1mNDg1
+
+* This project also related to our another projects which are optimization and machine learning. Check it here:
+    * https://github.com/thieu1995/metaheuristics
+    * https://github.com/thieu1995/mealpy
+    * https://github.com/thieu1995/mafese
+    * https://github.com/thieu1995/pfevaluator
+    * https://github.com/thieu1995/opfunu
+    * https://github.com/thieu1995/enoppy
+    * https://github.com/thieu1995/permetrics
+    * https://github.com/aiir-team
+
+=======
+License
+=======
+
+The project is licensed under GNU General Public License (GPL) V3 license.
+
+
+.. toctree::
+   :maxdepth: 4
+
+.. toctree::
+   :maxdepth: 4
+
+.. toctree::
+   :maxdepth: 4
