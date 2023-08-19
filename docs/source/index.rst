@@ -27,8 +27,8 @@ Welcome to MetaCluster's documentation!
 .. image:: https://github.com/thieu1995/metacluster/actions/workflows/publish-package.yaml/badge.svg
    :target: https://github.com/thieu1995/metacluster/actions/workflows/publish-package.yaml
 
-.. image:: https://pepy.tech/badge/metacluster
-   :target: https://pepy.tech/project/metacluster
+.. image:: https://static.pepy.tech/badge/MetaCluster
+   :target: https://pepy.tech/project/MetaCluster
 
 .. image:: https://img.shields.io/github/release-date/thieu1995/metacluster.svg
    :target: https://img.shields.io/github/release-date/thieu1995/metacluster.svg
