@@ -19,9 +19,12 @@ list_paras = [
     {"name": "GWO", "epoch": 10, "pop_size": 30},
     {"name": "SMA", "epoch": 10, "pop_size": 30}
 ]
-list_obj = ["BHI", "MIS", "XBI"]
+list_obj = ["BHI", "MIS"]  #["BHI", "MIS", "XBI"]
 list_metric = ["BRI", "DBI", "DRI", "DI", "KDI"]
+
 time_run = time.perf_counter()
-model = MetaCluster(list_optimizer=list_optimizer, list_paras=list_paras, list_obj=list_obj, n_trials=3)
+model = MetaCluster(list_optimizer=list_optimizer, list_paras=list_paras, list_obj=list_obj, n_trials=2)
 model.execute(data=data, cluster_finder="elbow", list_metric=list_metric, save_path="history", verbose=False)
+model.save_boxplots()
+model.save_convergences()
 print(f"Time process: {time.perf_counter() - time_run} seconds")

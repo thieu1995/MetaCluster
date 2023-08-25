@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from mealpy.optimizer import Optimizer
 from mealpy import *
 from permetrics import ClusteringMetric
 
@@ -21,7 +20,8 @@ class KCenterClusteringProblem(Problem):
         self.name = name
         super().__init__(lb, ub, minmax, **kwargs)
 
-    def get_y_pred(self, X, solution):
+    @staticmethod
+    def get_y_pred(X, solution):
         centers = np.reshape(solution, (-1, X.shape[1]))
         # Calculate the distance between each sample and each center
         distances = np.sqrt(np.sum((X[:, np.newaxis, :] - centers) ** 2, axis=2))

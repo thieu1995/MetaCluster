@@ -151,8 +151,8 @@ class MetaCluster:
             "convergence": model.history.list_global_best_fit
         }
 
-    def execute(self, data=None, cluster_finder="elbow", list_metric=None, save_path="history", save_figures=True,
-            verbose=True, mode='single', n_workers=None, termination=None):
+    def execute(self, data=None, cluster_finder="elbow", list_metric=None, save_path="history",
+                verbose=True, mode='single', n_workers=None, termination=None):
         """
         Parameters
         ----------
@@ -169,9 +169,6 @@ class MetaCluster:
 
         save_path : str, default="history"
             The path to the folder that hold results
-
-        save_figures : bool, default=True
-            Save all of available figure or not
 
         verbose : int, default = True
             Controls verbosity of output for each training process of each optimizer.
@@ -197,13 +194,13 @@ class MetaCluster:
             n_clusters = getattr(cluster, cluster_finder)(data.X)
         lb = np.min(data.X, axis=0).tolist() * n_clusters
         ub = np.max(data.X, axis=0).tolist() * n_clusters
-        obj_paras = {"decimal": 4}
+        obj_paras = {"decimal": 8}
         log_to = "console" if verbose else "None"
-        list_metric = self._set_list_function(list_metric, name="metrics")
+        self.list_metric = self._set_list_function(list_metric, name="metrics")
 
         ## Check parent directories
-        save_path = f"{save_path}/{data.get_name()}"
-        Path(save_path).mkdir(parents=True, exist_ok=True)
+        self.save_path = f"{save_path}/{data.get_name()}"
+        Path(self.save_path).mkdir(parents=True, exist_ok=True)
 
         list_problems = []
         for idx_opt, opt in enumerate(self.list_optimizer):
@@ -222,16 +219,16 @@ class MetaCluster:
                     y_pred = prob.get_y_pred(data.X, res["best_solution"])
                     y_pred = self.HYPHEN_SYMBOL.join(map(str, y_pred))     # Convert all labels to single string to save to csv file.
                     conv = self.HYPHEN_SYMBOL.join(map(str, res["convergence"]))
-                    dict_metrics = prob.get_metrics(res["best_solution"], list_metric)
+                    dict_metrics = prob.get_metrics(res["best_solution"], self.list_metric)
 
                     ## Save result_labels.csv file
                     dict1 = {"optimizer": opt.get_name(), "obj": obj, "n_clusters": n_clusters, "y_pred": y_pred}
-                    write_dict_to_csv(dict1, save_path=save_path, file_name=self.FILENAME_LABELS)
+                    write_dict_to_csv(dict1, save_path=self.save_path, file_name=self.FILENAME_LABELS)
 
                     ## Save result_metrics.csv file
                     dict2 = {"optimizer": opt.get_name(), "obj": obj, "trial": trial+1, "n_clusters": n_clusters, "time_run": time_run}
                     dict3 = {**dict2, **dict_metrics}
-                    write_dict_to_csv(dict3, save_path=save_path, file_name=self.FILENAME_METRICS)
+                    write_dict_to_csv(dict3, save_path=self.save_path, file_name=self.FILENAME_METRICS)
 
                     ## Save results for metrics-min and metrics-std
                     dict4 = {"time_run": time_run, **dict_metrics}
@@ -239,7 +236,7 @@ class MetaCluster:
 
                     ## Save result_convergence.csv
                     dict5 = {"optimizer": opt.get_name(), "obj": obj, "trial": trial+1, "n_clusters": n_clusters, "fitness": conv}
-                    write_dict_to_csv(dict5, save_path=save_path, file_name=self.FILENAME_CONVERGENCES)
+                    write_dict_to_csv(dict5, save_path=self.save_path, file_name=self.FILENAME_CONVERGENCES)
 
                 ## Save result_metrics_std.csv and result_metrics_std.csv file
                 df0 = pd.DataFrame(list_dict)
@@ -247,38 +244,104 @@ class MetaCluster:
                 dict_std = df0.std().to_dict()
                 dict_mean = {"optimizer": opt.get_name(), "obj": obj, "n_clusters": n_clusters, **dict_mean}
                 dict_std = {"optimizer": opt.get_name(), "obj": obj, "n_clusters": n_clusters, **dict_std}
-                write_dict_to_csv(dict_mean, save_path=save_path, file_name=self.FILENAME_METRICS_MEAN)
-                write_dict_to_csv(dict_std, save_path=save_path, file_name=self.FILENAME_METRICS_STD)
+                write_dict_to_csv(dict_mean, save_path=self.save_path, file_name=self.FILENAME_METRICS_MEAN)
+                write_dict_to_csv(dict_std, save_path=self.save_path, file_name=self.FILENAME_METRICS_STD)
 
-        if save_figures:
-            for idx_metric, metric in enumerate(list_metric):
-                df = pd.read_csv(f"{save_path}/{self.FILENAME_METRICS}.csv", usecols=["optimizer", "obj", metric])
-                for idx_obj, obj in enumerate(self.list_obj):
-                    df_draw = df[df["obj"] == obj][["optimizer", metric]]
-                    export_boxplot_figures(df_draw, file_name=f"boxplot-{obj}-{metric}", save_path=save_path)
+    def save_boxplots(self, xlabel="Optimizer", list_ylabel=None, title="Boxplot of comparison models",
+                      show_legend=True, show_mean_only=False, exts=(".png", ".pdf"), file_name="boxplot"):
+        """
+        All boxplots figures will be saved in the same folder of: {save_path}/{dataset_name}/
 
-            df = pd.read_csv(f"{save_path}/{self.FILENAME_CONVERGENCES}.csv", usecols=["optimizer", "obj", "trial", "fitness"])
+        Parameters
+        ----------
+        xlabel : str; default="Optimizer"
+            The label for x coordinate of boxplot figures.
+
+        list_ylabel : list, tuple, np.ndarray, None; default=None
+            The label for y coordinate of boxplot figures. Each boxplot corresponding to each metric in list_metric parameter,
+            therefor, if you wish to change to y label, you need to pass a list of string represent all metrics in order of list_metric.
+            None means it will use the name of metrics as the label
+
+        title : str; default="Boxplot of comparison models"
+            The title of figures, it should be the same for all objectives since we have y coordinate already difference.
+
+        show_legend : bool; default=True
+            Show the legend or not. For boxplots we can turn on or off this option, but not for convergence chart.
+
+        show_mean_only : bool; default=False
+            You can show the mean value only or you can show all mean, std, median of the box by this parameter
+
+        exts : list, tuple, np.ndarray; default=(".png", ".pdf")
+            List of extensions of the figures. It is for multiple purposes such as latex (need ".pdf" format), word (need ".png" format).
+
+        file_name : str; default="boxplot"
+            The prefix for filenames that will be saved.
+        """
+        if type(list_ylabel) in (list, tuple, np.ndarray):
+            if not(len(list_ylabel) == len(self.list_obj)):
+                raise ValueError("list_ylabel should have the same length as list_metric.")
+        else:
+            list_ylabel = self.list_metric.copy()
+        for idx_metric, metric in enumerate(self.list_metric):
+            df = pd.read_csv(f"{self.save_path}/{self.FILENAME_METRICS}.csv", usecols=["optimizer", "obj", metric])
             for idx_obj, obj in enumerate(self.list_obj):
-                ## Draw convergence for single trial
-                for idx_trial, trial in enumerate(range(self.n_trials)):
-                    df_draw = df[(df["obj"] == obj) & (df["trial"] == trial+1)][["optimizer", "fitness"]]
-                    df_draw.set_index("optimizer", inplace=True)
-                    dict_draw = df_draw.to_dict()["fitness"]
-                    for key, value in dict_draw.items():
-                        dict_draw[key] = np.array(value.split(self.HYPHEN_SYMBOL), dtype=float)
-                    df_draw = pd.DataFrame(dict_draw)
-                    export_convergence_figures(df_draw, file_name=f"convergence-{obj}-{trial+1}", save_path=save_path)
+                df_draw = df[df["obj"] == obj][["optimizer", metric]]
+                export_boxplot_figures(df_draw, xlabel=xlabel, ylabel=f"{list_ylabel[idx_metric]} value", title=title,
+                                       show_legend=show_legend, show_mean_only=show_mean_only, exts=exts,
+                                       file_name=f"{file_name}-{obj}-{metric}", save_path=self.save_path)
 
-                ## Draw mean convergence of all trials
-                df_draw = df[df["obj"] == obj][["optimizer", 'fitness']]
-                mylist = df_draw.values.tolist()
-                dict_mean = {}
-                for idx, item in enumerate(mylist):
-                    if item[0] in dict_mean:
-                        dict_mean[item[0]].append(np.array(item[1].split(self.HYPHEN_SYMBOL), dtype=float))
-                    else:
-                        dict_mean[item[0]] = [np.array(item[1].split(self.HYPHEN_SYMBOL), dtype=float)]
-                for key, value in dict_mean.items():
-                    dict_mean[key] = np.mean(value, axis=0)
-                df_draw = pd.DataFrame(dict_mean)
-                export_convergence_figures(df_draw, file_name=f"convergence-{obj}-mean", save_path=save_path)
+    def save_convergences(self, xlabel="Epoch", list_ylabel=None, title="Convergence chart of comparison models",
+                          exts=(".png", ".pdf"), file_name="convergence"):
+        """
+        All convergence figures will be saved in the same folder of: {save_path}/{dataset_name}/
+
+        Parameters
+        ----------
+        xlabel : str; default="Optimizer"
+            The label for x coordinate of convergence figures.
+
+        list_ylabel : list, tuple, np.ndarray, None; default=None
+            The label for y coordinate of convergence figures. Each convergence corresponding to each objective in list_obj,
+            therefor, if you wish to change to y label, you need to pass a list of string represent all objectives in order of list_obj.
+            None means it will use the name of objectives as the label
+
+        title : str; default="Convergence chart of comparison models"
+            The title of figures, it should be the same for all objectives since we have y coordinate already difference.
+
+        exts : list, tuple, np.ndarray; default=(".png", ".pdf")
+            List of extensions of the figures. It is for multiple purposes such as latex (need ".pdf" format), word (need ".png" format).
+
+        file_name : str; default="convergence"
+            The prefix for filenames that will be saved.
+        """
+        if type(list_ylabel) in (list, tuple, np.ndarray):
+            if not(len(list_ylabel) == len(self.list_obj)):
+                raise ValueError("list_ylabel should have the same length as list_obj.")
+        else:
+            list_ylabel = self.list_obj.copy()
+        df = pd.read_csv(f"{self.save_path}/{self.FILENAME_CONVERGENCES}.csv", usecols=["optimizer", "obj", "trial", "fitness"])
+        for idx_obj, obj in enumerate(self.list_obj):
+            ## Draw convergence for single trial
+            for idx_trial, trial in enumerate(range(self.n_trials)):
+                df_draw = df[(df["obj"] == obj) & (df["trial"] == trial+1)][["optimizer", "fitness"]]
+                df_draw.set_index("optimizer", inplace=True)
+                dict_draw = df_draw.to_dict()["fitness"]
+                for key, value in dict_draw.items():
+                    dict_draw[key] = np.array(value.split(self.HYPHEN_SYMBOL), dtype=float)
+                df_draw = pd.DataFrame(dict_draw)
+                export_convergence_figures(df_draw, xlabel=xlabel, ylabel=f"{list_ylabel[idx_obj]} fitness value", title=title, exts=exts,
+                                           file_name=f"{file_name}-{obj}-{trial+1}", save_path=self.save_path)
+            ## Draw mean convergence of all trials
+            df_draw = df[df["obj"] == obj][["optimizer", 'fitness']]
+            mylist = df_draw.values.tolist()
+            dict_mean = {}
+            for idx, item in enumerate(mylist):
+                if item[0] in dict_mean:
+                    dict_mean[item[0]].append(np.array(item[1].split(self.HYPHEN_SYMBOL), dtype=float))
+                else:
+                    dict_mean[item[0]] = [np.array(item[1].split(self.HYPHEN_SYMBOL), dtype=float)]
+            for key, value in dict_mean.items():
+                dict_mean[key] = np.mean(value, axis=0)
+            df_draw = pd.DataFrame(dict_mean)
+            export_convergence_figures(df_draw, xlabel=xlabel, ylabel=f"Average {obj} value", title=title, exts=exts,
+                                           file_name=f"{file_name}-{obj}-mean", save_path=self.save_path)

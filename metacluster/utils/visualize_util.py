@@ -11,9 +11,8 @@ import plotly.io as pio
 pio.kaleido.scope.mathjax = None
 
 
-def export_boxplot_figures(df, xlabel="Optimizer", ylabel=None, title="Boxplot of comparison models",
-                           show_legend=True, show_mean_only=False,
-                           exts=(".png", ".pdf"), file_name="boxplot", save_path="history"):
+def export_boxplot_figures(df, figure_size=(500, 600), xlabel="Optimizer", ylabel=None, title="Boxplot of comparison models",
+                           show_legend=True, show_mean_only=False, exts=(".png", ".pdf"), file_name="boxplot", save_path="history"):
     if xlabel is None:
         xlabel = ""
     if ylabel is None:
@@ -24,29 +23,32 @@ def export_boxplot_figures(df, xlabel="Optimizer", ylabel=None, title="Boxplot o
     col_name = list(df.columns)[-1]
     if ylabel is None:
         ylabel = col_name
-    fig = px.box(df, x="optimizer", y=col_name, color="optimizer", labels={"model": xlabel, col_name: ylabel})
+    fig = px.box(df, x="optimizer", y=col_name, color="optimizer",
+                 labels={'optimizer': xlabel, col_name: ylabel})
     fig.update_traces(boxmean=boxmean)  # boxmean=True if want to show mean only
-    fig.update_layout(margin=dict(l=20, r=20, t=30, b=20), showlegend=show_legend,
+    fig.update_layout(margin=dict(l=20, r=20, t=40, b=20), showlegend=show_legend,
                       title={'text': title, 'x': 0.5, 'xanchor': 'center', 'yanchor': 'top'})
     for idx, ext in enumerate(exts):
         fig.write_image(f"{save_path}/{file_name}{ext}")
 
 
-def export_convergence_figures(df, xlabel="Epoch", ylabel="Fitness value",
-                               title="Convergence chart of comparison models",
-                               exts=(".png", ".pdf"), file_name="boxplot", save_path="history"):
+def export_convergence_figures(df, figure_size=(500, 600), xlabel="Epoch", ylabel="Fitness value", title="Convergence chart of comparison models",
+                               legend_name="Optimizer", exts=(".png", ".pdf"), file_name="convergence", save_path="history"):
     if xlabel is None:
         xlabel = ""
     if ylabel is None:
         ylabel = ""
     if title is None:
         title = ""
+    if legend_name is None:
+        legend_name = "Optimizer"
     # Melt the DataFrame to convert it from wide to long format
     df = df.reset_index()
     df_long = pd.melt(df, id_vars='index', var_name='Column', value_name='Value')
     # Define the line chart using Plotly Express
-    fig = px.line(df_long, x='index', y='Value', color='Column', labels={'index': xlabel, 'Value': ylabel, 'Column': 'Optimizer'})
-    fig.update_layout(margin=dict(l=20, r=20, t=30, b=20), showlegend=True,
+    fig = px.line(df_long, x='index', y='Value', color='Column',
+                  labels={'index': xlabel, 'Value': ylabel, 'Column': legend_name})
+    fig.update_layout(margin=dict(l=20, r=20, t=40, b=20), showlegend=True,
                       title={'text': title, 'x': 0.5, 'xanchor': 'center', 'yanchor': 'top'})
     for idx, ext in enumerate(exts):
         fig.write_image(f"{save_path}/{file_name}{ext}")
