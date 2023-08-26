@@ -7,7 +7,7 @@ alt="MetaCluster"/>
 
 ---
 
-[![GitHub release](https://img.shields.io/badge/release-1.0.2-yellow.svg)](https://github.com/thieu1995/metacluster/releases)
+[![GitHub release](https://img.shields.io/badge/release-1.1.0-yellow.svg)](https://github.com/thieu1995/metacluster/releases)
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/metacluster) 
 [![PyPI version](https://badge.fury.io/py/metacluster.svg)](https://badge.fury.io/py/metacluster)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/metacluster.svg)
@@ -28,9 +28,9 @@ clustering problem in Python
 
 * **Free software:** GNU General Public License (GPL) V3 license
 * **Total nature-inspired metaheuristic optimizers (Metaheuristic Algorithms)**: > 200 optimizers
-* **Total objective functions (as fitness)**: 40 objectives
+* **Total objective functions (as fitness)**: > 40 objectives
 * **Total supported datasets**: 48 datasets from Scikit learn, UCI, ELKI, KEEL...
-* **Total performance metrics**: 40 metrics
+* **Total performance metrics**: > 40 metrics
 * **Total different way of detecting the K value**: >= 10 methods
 * **Documentation:** https://metacluster.readthedocs.io/en/latest/
 * **Python versions:** >= 3.7.x
@@ -41,7 +41,7 @@ clustering problem in Python
 
 * Install the [current PyPI release](https://pypi.python.org/pypi/metacluster):
 ```sh 
-$ pip install metacluster==1.0.2
+$ pip install metacluster==1.1.0
 ```
 
 * Install directly from source code
