@@ -12,6 +12,7 @@ MetaCluster.get_support(name="all")
 
 data = get_dataset("circles")
 data.X, scaler = data.scale(data.X, method="MinMaxScaler", feature_range=(0, 1))
+data.y = None
 
 list_optimizer = ["BaseFBIO", "OriginalGWO", "OriginalSMA"]
 list_paras = [
@@ -24,4 +25,6 @@ list_metric = ["BRI", "DBI", "DRI", "DI", "KDI"]
 time_run = time.perf_counter()
 model = MetaCluster(list_optimizer=list_optimizer, list_paras=list_paras, list_obj=list_obj, n_trials=3)
 model.execute(data=data, cluster_finder="elbow", list_metric=list_metric, save_path="history", verbose=False)
+model.save_boxplots()
+model.save_convergences()
 print(f"Time process: {time.perf_counter() - time_run} seconds")
