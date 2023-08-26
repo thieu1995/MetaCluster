@@ -73,9 +73,9 @@ class MetaCluster:
     SUPPORT = {
         "cluster_finder": {"elbow": "get_clusters_by_elbow", "gap": "get_clusters_by_gap_statistic",
                            "silhouette": "get_clusters_by_silhouette_score", "davies_bouldin": "get_clusters_by_davies_bouldin",
-                           "calinski_harabasz": "get_clusters_by_calinski_harabasz", "bic": "get_clusters_by_bic",
-                           "all_min": "get_clusters_by_all_min", "all_max": "get_clusters_by_all_max",
-                           "all_mean": "get_clusters_by_all_mean", "all_majority": "get_clusters_by_all_majority"},
+                           "calinski_harabasz": "get_clusters_by_calinski_harabasz", "bayesian_ìnormation": "get_clusters_by_bic",
+                           "all_min": "get_clusters_all_min", "all_max": "get_clusters_all_max",
+                           "all_mean": "get_clusters_all_mean", "all_majority": "get_clusters_all_majority"},
         "obj": cluster.get_all_clustering_metrics(),
         "metrics": cluster.get_all_clustering_metrics(),
         "optimizer": list(get_all_optimizers().keys())
@@ -164,7 +164,10 @@ class MetaCluster:
 
         cluster_finder : str, default="elbow".
             The method to find the optimal number of clusters in data. The supported methods are:
-            ["elbow", "gap", "silhouette", "davies_bouldin", "calinski_harabasz", "bic", "all_min", "all_max", "all_mean", "all_majority"].
+            ["elbow", "gap", "silhouette", "davies_bouldin", "calinski_harabasz", "bayesian_ìnormation", "all_min", "all_max", "all_mean", "all_majority"].
+            The method has prefixes `all` means that it will try all other methods and get the statistical number of clusters.
+            For example, `all_min`, takes the minimum K found from all tried methods. `all_mean`, takes the average K found from all tried methods.
+
             This parameter is only used when `data.y` is None. If you pass labels `y` to `data`. This method will be turned off.
             The number of clusters will be determined by number of unique labels in `y`.
 
@@ -195,8 +198,8 @@ class MetaCluster:
         if data.y is not None:
             n_clusters = len(np.unique(data.y))
         else:
-            cluster_finder = validator.check_str("cluster_finder", cluster_finder, list(self.SUPPORT["cluster_finder"].keys()))
-            n_clusters = getattr(cluster, cluster_finder)(data.X)
+            self.cluster_finder = validator.check_str("cluster_finder", cluster_finder, list(self.SUPPORT["cluster_finder"].keys()))
+            n_clusters = getattr(cluster, self.SUPPORT["cluster_finder"][self.cluster_finder])(data.X)
         lb = np.min(data.X, axis=0).tolist() * n_clusters
         ub = np.max(data.X, axis=0).tolist() * n_clusters
         obj_paras = {"decimal": 8}

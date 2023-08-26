@@ -10,6 +10,8 @@ from sklearn.cluster import KMeans
 from sklearn.mixture import GaussianMixture
 from permetrics import ClusteringMetric
 
+DEFAULT_LIST_CLUSTERS = list(range(2, 11))
+
 
 def get_all_clustering_metrics():
     dict_results = {}
@@ -29,7 +31,7 @@ def get_clusters_by_elbow(X, list_clusters=None, **kwargs):
     if type(list_clusters) in (list, tuple, np.ndarray):
         list_clusters = [item for item in list_clusters]
     else:
-        list_clusters = list(range(2, 15))
+        list_clusters = DEFAULT_LIST_CLUSTERS
     wcss = []
     for n_c in list_clusters:
         kmeans = KMeans(n_clusters=n_c)
@@ -48,17 +50,18 @@ def get_clusters_by_elbow(X, list_clusters=None, **kwargs):
 ### END ELBOW
 
 
-def compute_gap_statistic(X, refs=None, B=10, K=range(2, 11), N_init=10):
+def compute_gap_statistic(X, refs=None, B=10, list_K=None, N_init=10):
     """
     This function first generates B reference samples; for each sample, the sample size is the same as the original datasets;
     the value for each reference sample follows a uniform distribution for the range of each feature of the original datasets;
-    using a simplify formula to compute the D of each cluster, and then the Wk; K should be a increment list, 1-10 is fair enough;
-    the B value is about the number of replicated samples to run gap-statistics, it is recommended as 10, and it should not be changed/decreased that to a smaller value;
+    using simplify formula to compute the D of each cluster, and then the Wk; K should be a increment list, 1-10 is fair enough;
+    the B value is about the number of replicated samples to run gap-statistics,
+    it is recommended as 10, and it should not be changed/decreased that to a smaller value;
 
     Parameters
     ----------
     X :  np.array, the original data;
-    refs : np.array or None, it is the replicated data that you want to compare with if there exists one; if no existing replicated/proper data, just use None, and the function  will automatically generates them;
+    refs : np.ndarray or None, it is the replicated data that you want to compare with if there exists one; if no existing replicated/proper data, just use None, and the function  will automatically generates them;
     B : int, the number of replicated samples to run gap-statistics; it is recommended as 10, and it should not be changed/decreased that to a smaller value;
     K : list type, the range of K values to test on;
     N_init : int, states the number of initial starting points for each K-mean running under sklearn, in order to get stable clustering result each time;
@@ -80,11 +83,16 @@ def compute_gap_statistic(X, refs=None, B=10, K=range(2, 11), N_init=10):
     else:
         rands = refs
 
-    gaps = np.zeros(len(K))
-    Wks = np.zeros(len(K))
-    Wkbs = np.zeros((len(K), B))
+    if type(list_K) in (list, tuple, np.ndarray):
+        list_clusters = [item for item in list_K]
+    else:
+        list_clusters = DEFAULT_LIST_CLUSTERS
 
-    for indk, k in enumerate(K):
+    gaps = np.zeros(len(list_clusters))
+    Wks = np.zeros(len(list_clusters))
+    Wkbs = np.zeros((len(list_clusters), B))
+
+    for indk, k in enumerate(list_clusters):
         # n_init is the number of times each Kmeans running to get stable clustering results under each K value
         k_means = KMeans(n_clusters=k, init='k-means++', n_init=N_init, max_iter=300, tol=0.0001, verbose=0, random_state=None, copy_x=True)
         k_means.fit(X)
@@ -103,13 +111,12 @@ def compute_gap_statistic(X, refs=None, B=10, K=range(2, 11), N_init=10):
     gaps = (np.log(Wkbs)).mean(axis=1) - np.log(Wks)
     sd_ks = np.std(np.log(Wkbs), axis=1)
     sk = sd_ks * np.sqrt(1 + 1.0 / B)
-    return gaps, sk, K
+    return gaps, sk, list_clusters
 
 
 ### gap statistics
 def get_clusters_by_gap_statistic(X, list_clusters=None, B=10, N_init=10, **kwargs):
-    gaps, s_k, K = compute_gap_statistic(X, refs=None, B=B, K=list_clusters, N_init=N_init)
-
+    gaps, s_k, K = compute_gap_statistic(X, refs=None, B=B, list_K=list_clusters, N_init=N_init)
     gaps_thres = gaps - s_k
     below_or_above = (gaps[0:-1] >= gaps_thres[1:])
     if below_or_above.any():
@@ -119,15 +126,21 @@ def get_clusters_by_gap_statistic(X, list_clusters=None, B=10, N_init=10, **kwar
     return optimal_k
 
 
-def compute_Wk(data, classification_result):
-    '''
+def compute_Wk(data: np.ndarray, classification_result: np.ndarray):
+    """
     This function computes the Wk after each clustering
 
-    data:np.array, containing all the data
-    classification_result: np.array, containing all the clustering results for all the data
-    '''
+    Parameters
+    ----------
+    data : np.array, containing all the data
+    classification_result : np.ndarray, containing all the clustering results for all the data
+
+    Returns
+    -------
+    Wk : float
+    """
     Wk = 0
-    label_set = set(classification_result.tolist())
+    label_set = set(classification_result)
     for label in label_set:
         each_cluster = data[classification_result == label, :]
         mu = each_cluster.mean(axis=0)
@@ -141,7 +154,7 @@ def get_clusters_by_silhouette_score(X, list_clusters=None, **kwargs):
     if type(list_clusters) in (list, tuple, np.ndarray):
         list_clusters = [item for item in list_clusters]
     else:
-        list_clusters = list(range(2, 15))
+        list_clusters = DEFAULT_LIST_CLUSTERS
     sil_max = 0
     sil_max_clusters = 2
     for n_clusters in list_clusters:
@@ -160,17 +173,14 @@ def get_clusters_by_davies_bouldin(X, list_clusters=None, **kwargs):
     if type(list_clusters) in (list, tuple, np.ndarray):
         list_clusters = [item for item in list_clusters]
     else:
-        list_clusters = list(range(2, 15))
-    db_min = np.finfo(np.float64)
-    db_min_clusters = 2
+        list_clusters = DEFAULT_LIST_CLUSTERS
+    list_dbs = []
     for n_clusters in list_clusters:
         model = KMeans(n_clusters=n_clusters)
         labels = model.fit_predict(X)
         db_score = metrics.davies_bouldin_score(X, labels)
-        if db_score < db_min:
-            db_min = db_score
-            db_min_clusters = n_clusters
-    return db_min_clusters
+        list_dbs.append(db_score)
+    return list_clusters[np.argmin(list_dbs)]
 ### END DB score
 
 
@@ -179,17 +189,14 @@ def get_clusters_by_calinski_harabasz(X, list_clusters=None, **kwargs):
     if type(list_clusters) in (list, tuple, np.ndarray):
         list_clusters = [item for item in list_clusters]
     else:
-        list_clusters = list(range(2, 15))
-    ch_max = 0
-    ch_max_clusters = 2
+        list_clusters = DEFAULT_LIST_CLUSTERS
+    list_chs = []
     for n_clusters in list_clusters:
         model = KMeans(n_clusters=n_clusters)
         labels = model.fit_predict(X)
-        ch_score = metrics.calinski_harabaz_score(X, labels)
-        if ch_score > ch_max:
-            ch_max = ch_score
-            ch_max_clusters = n_clusters
-    return ch_max_clusters
+        ch_score = metrics.calinski_harabasz_score(X, labels)
+        list_chs.append(ch_score)
+    return list_clusters[np.argmax(list_chs)]
 ### END Calinski-Harabasz Index
 
 
@@ -198,7 +205,7 @@ def get_clusters_by_bic(X, list_clusters=None, **kwargs):
     if type(list_clusters) in (list, tuple, np.ndarray):
         list_clusters = [item for item in list_clusters]
     else:
-        list_clusters = list(range(2, 15))
+        list_clusters = DEFAULT_LIST_CLUSTERS
     bic_max = 0
     bic_max_clusters = 2
     for n_clusters in list_clusters:
