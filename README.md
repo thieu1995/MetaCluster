@@ -147,8 +147,11 @@ MetaCluster.get_support(name="all")
 ```python 
 model = MetaCluster(list_optimizer=list_optimizer, list_paras=list_paras, list_obj=list_obj, n_trials=3)
 
-model.execute(data=data, cluster_finder="elbow", list_metric=list_metric, 
-  save_path="history", save_figures=True, verbose=False)
+model.execute(data=data, cluster_finder="elbow", list_metric=list_metric, save_path="history", verbose=False)
+
+model.save_boxplots()
+model.save_convergences()
+
 ```
 
 As you can see, you can define different datasets and using the same model to run it. 
