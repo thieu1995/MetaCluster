@@ -1,4 +1,14 @@
 
+# Version 1.1.0
+
++ Update required version of PERMETRICS to 1.5.0
++ **Speed up 10x-100x** for the computation time of objective functions.
++ Update all cluster_finder methods.
++ Add customization functions to save figures. 
++ Update documents, examples, ChangeLog.md, CITATION.cff, README.md
+
+---------------------------------------------------------------------
+
 # Version 1.0.2
 
 + Update ChangeLog.md, CITATION.cff, MANIFEST.in, README.md
