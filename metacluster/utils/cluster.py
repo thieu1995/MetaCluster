@@ -48,36 +48,6 @@ def get_clusters_by_elbow(X, list_clusters=None, **kwargs):
 ### END ELBOW
 
 
-### gap statistics
-def get_clusters_by_gap_statistic(X, list_clusters=None, B=10, N_init=10, **kwargs):
-    gaps, s_k, K = compute_gap_statistic(X, refs=None, B=B, K=list_clusters, N_init=N_init)
-
-    gaps_thres = gaps - s_k
-    below_or_above = (gaps[0:-1] >= gaps_thres[1:])
-    if below_or_above.any():
-        optimal_k = K[below_or_above.argmax()]
-    else:
-        optimal_k = K[-1]
-    return optimal_k
-
-
-def compute_Wk(data, classification_result):
-    '''
-    This function computes the Wk after each clustering
-
-    data:np.array, containing all the data
-    classification_result: np.array, containing all the clustering results for all the data
-    '''
-    Wk = 0
-    label_set = set(classification_result.tolist())
-    for label in label_set:
-        each_cluster = data[classification_result == label, :]
-        mu = each_cluster.mean(axis=0)
-        D = sum(sum((each_cluster - mu) ** 2)) * 2.0 * each_cluster.shape[0]
-        Wk = Wk + D / (2.0 * each_cluster.shape[0])
-    return Wk
-
-
 def compute_gap_statistic(X, refs=None, B=10, K=range(2, 11), N_init=10):
     """
     This function first generates B reference samples; for each sample, the sample size is the same as the original datasets;
@@ -134,6 +104,36 @@ def compute_gap_statistic(X, refs=None, B=10, K=range(2, 11), N_init=10):
     sd_ks = np.std(np.log(Wkbs), axis=1)
     sk = sd_ks * np.sqrt(1 + 1.0 / B)
     return gaps, sk, K
+
+
+### gap statistics
+def get_clusters_by_gap_statistic(X, list_clusters=None, B=10, N_init=10, **kwargs):
+    gaps, s_k, K = compute_gap_statistic(X, refs=None, B=B, K=list_clusters, N_init=N_init)
+
+    gaps_thres = gaps - s_k
+    below_or_above = (gaps[0:-1] >= gaps_thres[1:])
+    if below_or_above.any():
+        optimal_k = K[below_or_above.argmax()]
+    else:
+        optimal_k = K[-1]
+    return optimal_k
+
+
+def compute_Wk(data, classification_result):
+    '''
+    This function computes the Wk after each clustering
+
+    data:np.array, containing all the data
+    classification_result: np.array, containing all the clustering results for all the data
+    '''
+    Wk = 0
+    label_set = set(classification_result.tolist())
+    for label in label_set:
+        each_cluster = data[classification_result == label, :]
+        mu = each_cluster.mean(axis=0)
+        D = sum(sum((each_cluster - mu) ** 2)) * 2.0 * each_cluster.shape[0]
+        Wk = Wk + D / (2.0 * each_cluster.shape[0])
+    return Wk
 
 
 ### silhouette score
@@ -211,6 +211,16 @@ def get_clusters_by_bic(X, list_clusters=None, **kwargs):
 ### END Bayesian Information Criterion
 
 
+def compute_all_methods(X, list_clusters=None, **kwargs):
+    k1 = get_clusters_by_elbow(X, list_clusters, **kwargs)
+    k2 = get_clusters_by_gap_statistic(X, list_clusters, **kwargs)
+    k3 = get_clusters_by_silhouette_score(X, list_clusters, **kwargs)
+    k4 = get_clusters_by_davies_bouldin(X, list_clusters, **kwargs)
+    k5 = get_clusters_by_calinski_harabasz(X, list_clusters, **kwargs)
+    k6 = get_clusters_by_bic(X, list_clusters, **kwargs)
+    return [k1, k2, k3, k4, k5, k6]
+
+
 def get_clusters_all_min(X, list_clusters=None, **kwargs):
     k_list = compute_all_methods(X, list_clusters, **kwargs)
     return min(k_list)
@@ -229,13 +239,3 @@ def get_clusters_all_mean(X, list_clusters=None, **kwargs):
 def get_clusters_all_majority(X, list_clusters=None, **kwargs):
     k_list = compute_all_methods(X, list_clusters, **kwargs)
     return max(set(k_list), key=k_list.count)
-
-
-def compute_all_methods(X, list_clusters=None, **kwargs):
-    k1 = get_clusters_by_elbow(X, list_clusters, **kwargs)
-    k2 = get_clusters_by_gap_statistic(X, list_clusters, **kwargs)
-    k3 = get_clusters_by_silhouette_score(X, list_clusters, **kwargs)
-    k4 = get_clusters_by_davies_bouldin(X, list_clusters, **kwargs)
-    k5 = get_clusters_by_calinski_harabasz(X, list_clusters, **kwargs)
-    k6 = get_clusters_by_bic(X, list_clusters, **kwargs)
-    return [k1, k2, k3, k4, k5, k6]

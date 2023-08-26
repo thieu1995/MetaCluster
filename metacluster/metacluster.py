@@ -159,11 +159,14 @@ class MetaCluster:
         Parameters
         ----------
         data : instance of Data class, default=None
-            The instance of Data class, make sure you have at least matrix feature X. Or target labels y (Optional).
+            The instance of Data class, make sure you have at least matrix feature X. The target labels y (Optional).
             Also make sure your matrix X is normalized or standardized
 
         cluster_finder : str, default="elbow".
-            The method to find the optimal number of clusters in data
+            The method to find the optimal number of clusters in data. The supported methods are:
+            ["elbow", "gap", "silhouette", "davies_bouldin", "calinski_harabasz", "bic", "all_min", "all_max", "all_mean", "all_majority"].
+            This parameter is only used when `data.y` is None. If you pass labels `y` to `data`. This method will be turned off.
+            The number of clusters will be determined by number of unique labels in `y`.
 
         list_metric : list, default=None
             List of performance metrics that supported by the library: https://github.com/thieu1995/permetrics
