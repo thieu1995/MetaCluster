@@ -6,7 +6,7 @@
 Welcome to MetaCluster's documentation!
 =======================================
 
-.. image:: https://img.shields.io/badge/release-1.0.2-yellow.svg
+.. image:: https://img.shields.io/badge/release-1.1.0-yellow.svg
    :target: https://github.com/thieu1995/metacluster/releases
 
 .. image:: https://img.shields.io/pypi/wheel/gensim.svg
@@ -57,9 +57,9 @@ clustering problem in Python
 
 * **Free software:** GNU General Public License (GPL) V3 license
 * **Total nature-inspired metaheuristic optimizers (Metaheuristic Algorithms)**: > 200 optimizers
-* **Total objective functions (as fitness)**: 40 objectives
+* **Total objective functions (as fitness)**: > 40 objectives
 * **Total supported datasets**: 48 datasets from Scikit learn, UCI, ELKI, KEEL...
-* **Total performance metrics**: 40 metrics
+* **Total performance metrics**: > 40 metrics
 * **Total different way of detecting the K value**: >= 10 methods
 * **Documentation:** https://metacluster.readthedocs.io/en/latest/
 * **Python versions:** >= 3.7.x

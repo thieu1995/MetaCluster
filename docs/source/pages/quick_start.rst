@@ -4,7 +4,7 @@ Installation
 
 * Install the `current PyPI release <https://pypi.python.org/pypi/metacluster />`_::
 
-   $ pip install metacluster==1.0.2
+   $ pip install metacluster==1.1.0
 
 
 * Install directly from source code::
