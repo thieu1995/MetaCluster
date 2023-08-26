@@ -66,6 +66,8 @@ class MetaCluster:
     >>> list_metric = ["BRI", "DBI", "DRI", "DI", "KDI"]
     >>> model = MetaCluster(list_optimizer=list_optimizer, list_paras=list_paras, list_obj=list_obj, n_trials=3)
     >>> model.execute(data=data, cluster_finder="elbow", list_metric=list_metric, save_path="history", verbose=False)
+    >>> model.save_boxplots()
+    >>> model.save_convergences()
     """
 
     SUPPORT = {
@@ -247,13 +249,31 @@ class MetaCluster:
                 write_dict_to_csv(dict_mean, save_path=self.save_path, file_name=self.FILENAME_METRICS_MEAN)
                 write_dict_to_csv(dict_std, save_path=self.save_path, file_name=self.FILENAME_METRICS_STD)
 
-    def save_boxplots(self, xlabel="Optimizer", list_ylabel=None, title="Boxplot of comparison models",
+    @staticmethod
+    def _get_figure_size(n_models):
+        if n_models <= 3:
+            figure_size = (450, 550)
+        elif n_models <= 5:
+            figure_size = (600, 550)
+        elif n_models <= 7:
+            figure_size = (750, 550)
+        elif n_models <= 9:
+            figure_size = (900, 550)
+        else:
+            figure_size = (1050, 550)
+        return figure_size
+
+    def save_boxplots(self, figure_size=None, xlabel="Optimizer", list_ylabel=None, title="Boxplot of comparison models",
                       show_legend=True, show_mean_only=False, exts=(".png", ".pdf"), file_name="boxplot"):
         """
         All boxplots figures will be saved in the same folder of: {save_path}/{dataset_name}/
 
         Parameters
         ----------
+        figure_size : list, tuple, np.ndarray, None; default=None
+            The size for saved figures. `None` means it will automatically set for you.
+            Or you can pass (width, height) of figure based on pixel (100px to 1500px)
+
         xlabel : str; default="Optimizer"
             The label for x coordinate of boxplot figures.
 
@@ -277,6 +297,11 @@ class MetaCluster:
         file_name : str; default="boxplot"
             The prefix for filenames that will be saved.
         """
+        if type(figure_size) in (list, tuple, np.ndarray):
+            if not(len(figure_size) == 2):
+                raise ValueError("figure size should have length of 2 indicate width and height of the figure.")
+        else:
+            figure_size = self._get_figure_size(len(self.list_optimizer))
         if type(list_ylabel) in (list, tuple, np.ndarray):
             if not(len(list_ylabel) == len(self.list_obj)):
                 raise ValueError("list_ylabel should have the same length as list_metric.")
@@ -286,17 +311,21 @@ class MetaCluster:
             df = pd.read_csv(f"{self.save_path}/{self.FILENAME_METRICS}.csv", usecols=["optimizer", "obj", metric])
             for idx_obj, obj in enumerate(self.list_obj):
                 df_draw = df[df["obj"] == obj][["optimizer", metric]]
-                export_boxplot_figures(df_draw, xlabel=xlabel, ylabel=f"{list_ylabel[idx_metric]} value", title=title,
-                                       show_legend=show_legend, show_mean_only=show_mean_only, exts=exts,
+                export_boxplot_figures(df_draw, figure_size=figure_size, xlabel=xlabel, ylabel=f"{list_ylabel[idx_metric]} value",
+                                       title=title, show_legend=show_legend, show_mean_only=show_mean_only, exts=exts,
                                        file_name=f"{file_name}-{obj}-{metric}", save_path=self.save_path)
 
-    def save_convergences(self, xlabel="Epoch", list_ylabel=None, title="Convergence chart of comparison models",
-                          exts=(".png", ".pdf"), file_name="convergence"):
+    def save_convergences(self, figure_size=None, xlabel="Epoch", list_ylabel=None,
+                          title="Convergence chart of comparison models", exts=(".png", ".pdf"), file_name="convergence"):
         """
         All convergence figures will be saved in the same folder of: {save_path}/{dataset_name}/
 
         Parameters
         ----------
+        figure_size : list, tuple, np.ndarray, None; default=None
+            The size for saved figures. `None` means it will automatically set for you.
+            Or you can pass (width, height) of figure based on pixel (100px to 1500px)
+
         xlabel : str; default="Optimizer"
             The label for x coordinate of convergence figures.
 
@@ -314,6 +343,13 @@ class MetaCluster:
         file_name : str; default="convergence"
             The prefix for filenames that will be saved.
         """
+        if type(figure_size) in (list, tuple, np.ndarray):
+            if not(len(figure_size) == 2):
+                raise ValueError("figure size should have length of 2 indicate width and height of the figure.")
+        else:
+            figure_size = (700, 500)
+            if len(self.list_optimizer) >= 7:
+                figure_size = (850, 550)
         if type(list_ylabel) in (list, tuple, np.ndarray):
             if not(len(list_ylabel) == len(self.list_obj)):
                 raise ValueError("list_ylabel should have the same length as list_obj.")
@@ -329,8 +365,8 @@ class MetaCluster:
                 for key, value in dict_draw.items():
                     dict_draw[key] = np.array(value.split(self.HYPHEN_SYMBOL), dtype=float)
                 df_draw = pd.DataFrame(dict_draw)
-                export_convergence_figures(df_draw, xlabel=xlabel, ylabel=f"{list_ylabel[idx_obj]} fitness value", title=title, exts=exts,
-                                           file_name=f"{file_name}-{obj}-{trial+1}", save_path=self.save_path)
+                export_convergence_figures(df_draw, figure_size=figure_size, xlabel=xlabel, ylabel=f"{list_ylabel[idx_obj]} fitness value",
+                                           title=title, exts=exts, file_name=f"{file_name}-{obj}-{trial+1}", save_path=self.save_path)
             ## Draw mean convergence of all trials
             df_draw = df[df["obj"] == obj][["optimizer", 'fitness']]
             mylist = df_draw.values.tolist()
@@ -343,5 +379,5 @@ class MetaCluster:
             for key, value in dict_mean.items():
                 dict_mean[key] = np.mean(value, axis=0)
             df_draw = pd.DataFrame(dict_mean)
-            export_convergence_figures(df_draw, xlabel=xlabel, ylabel=f"Average {obj} value", title=title, exts=exts,
-                                           file_name=f"{file_name}-{obj}-mean", save_path=self.save_path)
+            export_convergence_figures(df_draw, figure_size=figure_size, xlabel=xlabel, ylabel=f"Average {obj} value",
+                                       title=title, exts=exts, file_name=f"{file_name}-{obj}-mean", save_path=self.save_path)
