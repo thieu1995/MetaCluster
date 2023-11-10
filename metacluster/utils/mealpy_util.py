@@ -5,20 +5,41 @@
 # --------------------------------------------------%
 
 import numpy as np
-from mealpy import *
+from mealpy import Problem, FloatVar, get_all_optimizers, get_optimizer_by_name, Optimizer
+from mealpy import FloatVar, StringVar, BoolVar, IntegerVar, MixedSetVar, Tuner
 from permetrics import ClusteringMetric
+from sklearn.cluster import KMeans
 
 
-class KCenterClusteringProblem(Problem):
-    def __init__(self, lb, ub, minmax, data=None, estimator=None, obj_name=None, obj_paras=None,
-                 name="K Center Clustering Problem", **kwargs):
-        ## data is assigned first because when initialize the Problem class, we need to check the output of fitness
-        self.data = data
-        self.estimator = estimator
+class KMeansParametersProblem(Problem):
+    def __init__(self, bounds=None, minmax="min", X=None, obj_name=None, seed=None, **kwargs):
+        ## X is assigned first because when initialize the Problem class, we need to check the output of obj_func
+        self.X = X
         self.obj_name = obj_name
-        self.obj_paras = obj_paras
-        self.name = name
-        super().__init__(lb, ub, minmax, **kwargs)
+        self.seed = seed
+        super().__init__(bounds, minmax, **kwargs)
+
+    def get_model(self, solution) -> KMeans:
+        x_dict = self.decode_solution(solution)
+        kmeans = KMeans(random_state=self.seed)
+        kmeans.set_params(**x_dict)
+        kmeans.fit(self.X)
+        return kmeans
+
+    def obj_func(self, solution):
+        kmeans = self.get_model(solution)
+        y_pred = kmeans.predict(self.X)
+        evaluator = ClusteringMetric(y_pred=y_pred, X=self.X, raise_error=False, decimal=8)
+        obj = evaluator.get_metric_by_name(self.obj_name)[self.obj_name]
+        return obj
+
+
+class KCentersClusteringProblem(Problem):
+    def __init__(self, bounds=None, minmax=None, data=None, obj_name=None, **kwargs):
+        ## data is assigned first because when initialize the Problem class, we need to check the output of obj_func
+        self.data = data
+        self.obj_name = obj_name
+        super().__init__(bounds, minmax, **kwargs)
 
     @staticmethod
     def get_y_pred(X, solution):
@@ -32,24 +53,13 @@ class KCenterClusteringProblem(Problem):
     def get_metrics(self, solution=None, list_metric=None, list_paras=None):
         centers = np.reshape(solution, (-1, self.data.X.shape[1]))
         y_pred = self.get_y_pred(self.data.X, centers)
-        evaluator = ClusteringMetric(y_true=self.data.y, y_pred=y_pred, X=self.data.X)
+        evaluator = ClusteringMetric(y_true=self.data.y, y_pred=y_pred, X=self.data.X, decimal=8)
         results = evaluator.get_metrics_by_list_names(list_metric, list_paras)
         return results
 
-    # def amend_position(self, position=None, lb=None, ub=None):
-    #     n_features = self.data.X.shape[1]
-    #     n_clusters = int(len(position) / n_features)
-    #     pos = np.clip(position, lb, ub)
-    #     centers = np.reshape(pos, (n_clusters, n_features))
-    #     y_pred = self.get_y_pred(self.data.X, centers)
-    #     while len(np.unique(y_pred, return_counts=True)[0]) == 1:
-    #         centers[np.random.randint(0, n_clusters)] = np.random.uniform(lb[:n_features], ub[:n_features])
-    #         y_pred = self.get_y_pred(self.data.X, centers)
-    #     return centers.flatten()
-
-    def fit_func(self, solution):
-        centers = np.reshape(solution, (-1, self.data.X.shape[1]))
+    def obj_func(self, solution):
+        centers = self.decode_solution(solution)["center_weights"]
         y_pred = self.get_y_pred(self.data.X, centers)
-        evaluator = ClusteringMetric(y_true=self.data.y, y_pred=y_pred, X=self.data.X, raise_error=False)
-        obj = evaluator.get_metric_by_name(self.obj_name, paras=self.obj_paras)[self.obj_name]
+        evaluator = ClusteringMetric(y_true=self.data.y, y_pred=y_pred, X=self.data.X, raise_error=False, decimal=8)
+        obj = evaluator.get_metric_by_name(self.obj_name)[self.obj_name]
         return obj
