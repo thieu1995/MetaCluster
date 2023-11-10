@@ -1,4 +1,13 @@
 
+# Version 1.2.0
+
++ Add class `MhaKMeansTuner` that can tune hyper-parameters of KMeans model using Metaheuristic Algorithms (MHAs)
++ Add class `MhaKCentersClustering` that can optimize the center weights of KMeans model using MHAs
++ Update required version of mealpy to 3.0.1
++ Update documents, examples, ChangeLog.md, CITATION.cff, README.md
+
+---------------------------------------------------------------------
+
 # Version 1.1.0
 
 + Update required version of PERMETRICS to 1.5.0
