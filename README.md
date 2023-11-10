@@ -1,13 +1,11 @@
 
 <p align="center">
-<img style="max-width:100%;" 
-src="https://thieu1995.github.io/post/2023-08/MetaCluster-01.png" 
-alt="MetaCluster"/>
+<img style="max-width:100%;" src="https://thieu1995.github.io/post/2023-08/MetaCluster-01.png" alt="MetaCluster"/>
 </p>
 
 ---
 
-[![GitHub release](https://img.shields.io/badge/release-1.1.0-yellow.svg)](https://github.com/thieu1995/metacluster/releases)
+[![GitHub release](https://img.shields.io/badge/release-1.2.0-yellow.svg)](https://github.com/thieu1995/metacluster/releases)
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/metacluster) 
 [![PyPI version](https://badge.fury.io/py/metacluster.svg)](https://badge.fury.io/py/metacluster)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/metacluster.svg)
@@ -27,6 +25,7 @@ MetaCluster is the largest open-source nature-inspired optimization (Metaheurist
 clustering problem in Python
 
 * **Free software:** GNU General Public License (GPL) V3 license
+* **Provided 3 classes: `MetaCluster`, `MhaKCentersClustering`, and `MhaKMeansTuner`**
 * **Total nature-inspired metaheuristic optimizers (Metaheuristic Algorithms)**: > 200 optimizers
 * **Total objective functions (as fitness)**: > 40 objectives
 * **Total supported datasets**: 48 datasets from Scikit learn, UCI, ELKI, KEEL...
@@ -41,7 +40,7 @@ clustering problem in Python
 
 * Install the [current PyPI release](https://pypi.python.org/pypi/metacluster):
 ```sh 
-$ pip install metacluster==1.1.0
+$ pip install metacluster==1.2.0
 ```
 
 * Install directly from source code
@@ -98,7 +97,7 @@ data = Data(X, y, name="my-dataset")
 
 **You should confirm that your dataset is scaled and normalized**
 
-```python 
+```python
 # MinMaxScaler 
 data.X, scaler = data.scale(data.X, method="MinMaxScaler", feature_range=(0, 1))
 
@@ -118,7 +117,7 @@ data.X, scaler = data.scale(data.X, method="Normalizer", norm="l2")   # "l1" or 
 
 #### 3. Next, select Metaheuristic Algorithm, Its parameters, list of objectives, and list of performance metrics 
 
-```python 
+```python
 list_optimizer = ["BaseFBIO", "OriginalGWO", "OriginalSMA"]
 list_paras = [
     {"name": "FBIO", "epoch": 10, "pop_size": 30},
@@ -132,9 +131,9 @@ list_metric = ["BHI", "DBI", "DI", "CHI", "SSEI", "NMIS", "HS", "CS", "VMS", "HG
 You can check all supported metaheuristic algorithms from: https://github.com/thieu1995/mealpy.
 All supported clustering objectives and metrics from: https://github.com/thieu1995/permetrics.
 
-If you don't want to read the documents, you can print out all of the supported information by:
+If you don't want to read the documents, you can print out all supported information by:
 
-```python 
+```python
 from metacluster import MetaCluster 
 
 # Get all supported methods and print them out
@@ -144,18 +143,18 @@ MetaCluster.get_support(name="all")
 
 #### 4. Next, create an instance of MetaCluster class and run it.
 
-```python 
-model = MetaCluster(list_optimizer=list_optimizer, list_paras=list_paras, list_obj=list_obj, n_trials=3)
+```python
+model = MetaCluster(list_optimizer=list_optimizer, list_paras=list_paras, list_obj=list_obj, n_trials=3, seed=10)
 
 model.execute(data=data, cluster_finder="elbow", list_metric=list_metric, save_path="history", verbose=False)
 
 model.save_boxplots()
 model.save_convergences()
-
 ```
 
 As you can see, you can define different datasets and using the same model to run it. 
 Remember to set the name to your dataset, because the folder that hold your results is the name of your dataset.
+More examples can be found [here](/examples)
 
 
 # Support 
