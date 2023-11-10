@@ -36,3 +36,4 @@ __version__ = "1.0.2"
 from metacluster.utils.encoder import LabelEncoder
 from metacluster.utils.data_loader import Data, get_dataset
 from metacluster.metacluster import MetaCluster
+from metacluster.mha_cluster import MhaKCentersClustering, MhaKMeansTuner
