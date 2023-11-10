@@ -22,7 +22,7 @@ list_obj = ["BHI"]
 list_metric = ["BRI", "DBI", "DRI"]
 
 time_run = time.perf_counter()
-model = MetaCluster(list_optimizer=list_optimizer, list_paras=list_paras, list_obj=list_obj, n_trials=2)
+model = MetaCluster(list_optimizer=list_optimizer, list_paras=list_paras, list_obj=list_obj, n_trials=2, seed=10)
 model.execute(data=data, cluster_finder="all_majority", list_metric=list_metric, save_path="history", verbose=False)
 model.save_boxplots()
 model.save_convergences()

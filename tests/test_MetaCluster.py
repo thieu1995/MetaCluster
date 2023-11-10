@@ -14,7 +14,7 @@ def test_MetaCluster_class():
     data = get_dataset("circles")
     data.X, scaler = data.scale(data.X, method="MinMaxScaler", feature_range=(0, 1))
 
-    list_optimizer = ["BaseFBIO", "OriginalGWO", "OriginalSMA"]
+    list_optimizer = ["OriginalFBIO", "OriginalGWO", "OriginalSMA"]
     list_paras = [
         {"name": "FBIO", "epoch": 10, "pop_size": 30},
         {"name": "GWO", "epoch": 10, "pop_size": 30},
@@ -22,7 +22,7 @@ def test_MetaCluster_class():
     ]
     list_obj = ["BHI", "MIS", "XBI"]
 
-    model = MetaCluster(list_optimizer=list_optimizer, list_paras=list_paras, list_obj=list_obj, n_trials=3)
+    model = MetaCluster(list_optimizer=list_optimizer, list_paras=list_paras, list_obj=list_obj, n_trials=3, seed=10)
     assert model.n_trials == 3
     assert model.list_obj == list_obj
     assert len(model.list_optimizer) == len(list_optimizer)

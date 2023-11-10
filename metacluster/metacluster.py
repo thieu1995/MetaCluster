@@ -8,10 +8,8 @@ import time
 from pathlib import Path
 import pandas as pd
 import numpy as np
-from metacluster.utils import mealpy_util as mu, cluster
-from metacluster.utils import validator
+from metacluster.utils import mealpy_util as mu, cluster, validator
 from metacluster.utils.io_util import write_dict_to_csv
-from metacluster.utils.mealpy_util import get_all_optimizers, KCenterClusteringProblem
 from metacluster.utils.visualize_util import export_boxplot_figures, export_convergence_figures
 
 
@@ -21,9 +19,6 @@ class MetaCluster:
 
     Parameters
     ----------
-
-    list_optimizer=None, list_paras=None, list_obj=None, n_trials=5
-
     list_optimizer: list, default = None
         List of strings that represent class optimizer or list of instance of Optimizer class from Mealpy library.
         Current supported optimizers, please check it here: https://github.com/thieu1995/mealpy
@@ -41,6 +36,9 @@ class MetaCluster:
 
     n_trials : int, default=5
         The number of runs for each optimizer for each objective
+
+    seed : int, default=20
+        Determines random number generation for the whole program. Use an int to make the randomness deterministic.
 
     Examples
     --------
@@ -78,7 +76,7 @@ class MetaCluster:
                            "all_mean": "get_clusters_all_mean", "all_majority": "get_clusters_all_majority"},
         "obj": cluster.get_all_clustering_metrics(),
         "metrics": cluster.get_all_clustering_metrics(),
-        "optimizer": list(get_all_optimizers().keys())
+        "optimizer": list(mu.get_all_optimizers().keys())
     }
 
     FILENAME_LABELS = "result_labels"
@@ -88,10 +86,11 @@ class MetaCluster:
     FILENAME_CONVERGENCES = "result_convergences"
     HYPHEN_SYMBOL = "="
 
-    def __init__(self, list_optimizer=None, list_paras=None, list_obj=None, n_trials=5):
+    def __init__(self, list_optimizer=None, list_paras=None, list_obj=None, n_trials=5, seed=20):
         self.list_optimizer, self.list_paras = self._set_list_optimizer(list_optimizer, list_paras)
         self.list_obj = self._set_list_function(list_obj, name="objectives")
         self.n_trials = n_trials
+        self.seed = seed
 
     @staticmethod
     def get_support(name="all", verbose=True):
@@ -145,12 +144,12 @@ class MetaCluster:
                     raise TypeError(f"optimizer needs to set as a string and supported by Mealpy library.")
         return list_opts, list_paras
 
-    def __run__(self, model, problem, mode="single", n_workers=2, termination=None):
-        best_position, best_fitness = model.solve(problem, mode=mode, n_workers=n_workers, termination=termination)
+    def __run__(self, optimizer, problem, mode="single", n_workers=2, termination=None):
+        optimizer.solve(problem, mode=mode, n_workers=n_workers, termination=termination, seed=self.seed)
         return {
-            "best_fitness": best_fitness,
-            "best_solution": best_position,
-            "convergence": model.history.list_global_best_fit
+            "best_fitness": optimizer.g_best.target.fitness,
+            "best_solution": optimizer.problem.decode_solution(optimizer.g_best.solution)["center_weights"],
+            "convergence": optimizer.history.list_global_best_fit
         }
 
     def execute(self, data=None, cluster_finder="elbow", list_metric=None, save_path="history",
@@ -200,17 +199,16 @@ class MetaCluster:
         else:
             self.cluster_finder = validator.check_str("cluster_finder", cluster_finder, list(self.SUPPORT["cluster_finder"].keys()))
             n_clusters = getattr(cluster, self.SUPPORT["cluster_finder"][self.cluster_finder])(data.X)
+        log_to = "console" if verbose else "None"
         lb = np.min(data.X, axis=0).tolist() * n_clusters
         ub = np.max(data.X, axis=0).tolist() * n_clusters
-        obj_paras = {"decimal": 8}
-        log_to = "console" if verbose else "None"
+        bound = mu.FloatVar(lb=lb, ub=ub, name="center_weights")
         self.list_metric = self._set_list_function(list_metric, name="metrics")
 
         ## Check parent directories
         self.save_path = f"{save_path}/{data.get_name()}"
         Path(self.save_path).mkdir(parents=True, exist_ok=True)
 
-        list_problems = []
         for idx_opt, opt in enumerate(self.list_optimizer):
             for idx_obj, obj in enumerate(self.list_obj):
 
@@ -218,16 +216,14 @@ class MetaCluster:
                 for idx_trial, trial in enumerate(range(self.n_trials)):
                     print(f"MetaCluster are working on: optimizer={opt.get_name()}, obj={obj}, trial={trial+1}")
                     minmax = self.SUPPORT["obj"][obj]
-                    prob = KCenterClusteringProblem(lb, ub, minmax, data=data, obj_name=obj, obj_paras=obj_paras, log_to=log_to)
-                    list_problems.append(prob)
-
+                    problem = mu.KCentersClusteringProblem(bounds=bound, minmax=minmax, data=data, obj_name=obj, log_to=log_to)
                     time_run = time.perf_counter()
-                    res = self.__run__(opt, prob, mode=mode, n_workers=n_workers, termination=termination)
+                    result = self.__run__(opt, problem, mode=mode, n_workers=n_workers, termination=termination)
                     time_run = round(time_run, 5)
-                    y_pred = prob.get_y_pred(data.X, res["best_solution"])
+                    y_pred = problem.get_y_pred(data.X, result["best_solution"])
                     y_pred = self.HYPHEN_SYMBOL.join(map(str, y_pred))     # Convert all labels to single string to save to csv file.
-                    conv = self.HYPHEN_SYMBOL.join(map(str, res["convergence"]))
-                    dict_metrics = prob.get_metrics(res["best_solution"], self.list_metric)
+                    conv = self.HYPHEN_SYMBOL.join(map(str, result["convergence"]))
+                    dict_metrics = problem.get_metrics(result["best_solution"], self.list_metric)
 
                     ## Save result_labels.csv file
                     dict1 = {"optimizer": opt.get_name(), "obj": obj, "n_clusters": n_clusters, "y_pred": y_pred}
