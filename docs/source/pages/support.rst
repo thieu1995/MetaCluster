@@ -4,14 +4,14 @@ Citation Request
 
 Please include these citations if you plan to use this library:::
 
-	@software{van_thieu_nguyen_2023_8220709,
-	  author       = {Nguyen Van Thieu},
-	  title        = {MetaCluster: An Open-Source Python Library for Metaheuristic-based Clustering Problems},
-	  month        = aug,
-	  year         = 2023,
-	  publisher    = {Zenodo},
-	  doi          = {10.5281/zenodo.8214539},
-	  url          = {https://github.com/thieu1995/metacluster}
+	@article{VanThieu2023,
+	  author = {Van Thieu,  Nguyen and Oliva,  Diego and Pérez-Cisneros,  Marco},
+	  title = {MetaCluster: An open-source Python library for metaheuristic-based clustering problems},
+	  journal = {SoftwareX},
+	  year = {2023},
+	  pages = {101597},
+	  volume = {24},
+	  DOI = {10.1016/j.softx.2023.101597},
 	}
 
 	@article{van2023mealpy,
@@ -44,6 +44,9 @@ Important links
     * https://github.com/thieu1995/opfunu
     * https://github.com/thieu1995/enoppy
     * https://github.com/thieu1995/permetrics
+	* https://github.com/thieu1995/IntelELM
+	* https://github.com/thieu1995/MetaPerceptron
+	* https://github.com/thieu1995/GrafoRVFL
     * https://github.com/aiir-team
 
 =======

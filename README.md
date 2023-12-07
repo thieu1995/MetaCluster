@@ -36,6 +36,33 @@ clustering problem in Python
 * **Dependencies:** numpy, scipy, scikit-learn, pandas, mealpy, permetrics, plotly, kaleido
 
 
+
+# Citation Request
+
+Please include these citations if you plan to use this library:
+
+```code
+@article{VanThieu2023,
+  author = {Van Thieu,  Nguyen and Oliva,  Diego and Pérez-Cisneros,  Marco},
+  title = {MetaCluster: An open-source Python library for metaheuristic-based clustering problems},
+  journal = {SoftwareX},
+  year = {2023},
+  pages = {101597},
+  volume = {24},
+  DOI = {10.1016/j.softx.2023.101597},
+}
+
+@article{van2023mealpy,
+  title={MEALPY: An open-source library for latest meta-heuristic algorithms in Python},
+  author={Van Thieu, Nguyen and Mirjalili, Seyedali},
+  journal={Journal of Systems Architecture},
+  year={2023},
+  publisher={Elsevier},
+  doi={10.1016/j.sysarc.2023.102871}
+}
+```
+
+
 # Installation
 
 * Install the [current PyPI release](https://pypi.python.org/pypi/metacluster):
@@ -65,7 +92,9 @@ $ python
 
 ### Examples
 
-Let's go through some examples.
+We implement a dedicated Github repository for examples at [MetaCluster_examples](https://github.com/thieu1995/MetaCluster_examples)
+
+Let's go through some basic examples from here:
 
 #### 1. First, load dataset. You can use the available datasets from MetaCluster:
 
@@ -176,33 +205,11 @@ More examples can be found [here](/examples)
     * https://github.com/thieu1995/opfunu
     * https://github.com/thieu1995/enoppy
     * https://github.com/thieu1995/permetrics
+    * https://github.com/thieu1995/IntelELM
+    * https://github.com/thieu1995/MetaPerceptron
+    * https://github.com/thieu1995/GrafoRVFL
     * https://github.com/aiir-team
 
-
-### Citation Request
-
-Please include these citations if you plan to use this library:
-
-```code 
-@software{van_thieu_nguyen_2023_8220709,
-  author       = {Nguyen Van Thieu},
-  title        = {MetaCluster: An Open-Source Python Library for Metaheuristic-based Clustering Problems},
-  month        = aug,
-  year         = 2023,
-  publisher    = {Zenodo},
-  doi          = {10.5281/zenodo.8214539},
-  url          = {https://github.com/thieu1995/metacluster}
-}
-
-@article{van2023mealpy,
-  title={MEALPY: An open-source library for latest meta-heuristic algorithms in Python},
-  author={Van Thieu, Nguyen and Mirjalili, Seyedali},
-  journal={Journal of Systems Architecture},
-  year={2023},
-  publisher={Elsevier},
-  doi={10.1016/j.sysarc.2023.102871}
-}
-```
 
 ### Supported links 
 
