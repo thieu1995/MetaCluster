@@ -55,12 +55,13 @@ class MhaKMeansTuner:
     SUPPORT = {
         "obj": cluster.get_all_clustering_metrics(),
         "metrics": cluster.get_all_clustering_metrics(),
-        "optimizer": list(mu.get_all_optimizers().keys())
+        "optimizer": list(mu.get_all_optimizers(verbose=False).keys())
     }
 
     def __init__(self, optimizer=None, optimizer_paras=None, seed=20):
         self.seed = seed
-        self.optimizer, self.optimizer_paras = self._set_optimizer(optimizer, optimizer_paras)
+        self.optimizer_paras = optimizer_paras
+        self.optimizer = optimizer
         self.best_parameters = {}
         self.best_estimator: Optional[mu.KMeans] = None
 
@@ -79,21 +80,30 @@ class MhaKMeansTuner:
             return MhaKMeansTuner.SUPPORT[name]
         raise ValueError(f"MhaKMeansTuner doesn't support {name}.")
 
-    def _set_optimizer(self, optimizer=None, optimizer_paras=None):
-        if optimizer_paras is None:
-            optimizer_paras = {}
-        if type(optimizer) is str:
-            opt_class = mu.get_optimizer_by_name(optimizer)
-            if type(optimizer_paras) is dict:
-                optimizer = opt_class(**optimizer_paras)
+    def set_optimizer(self, optimizer):
+        self.optimizer = optimizer
+
+    def set_optimizer_paras(self, optimizer_paras):
+        self.optimizer_paras = optimizer_paras
+
+    def set_seed(self, seed):
+        self.seed = seed
+
+    def set_optimizer_object(self, optimizer=None, optimizer_paras=None):
+        if isinstance(optimizer, str):
+            opt_class = mu.get_optimizer_by_class(optimizer)
+            if isinstance(optimizer_paras, dict):
+                self.optimizer = opt_class(**optimizer_paras)
             else:
-                optimizer = opt_class(epoch=100, pop_size=20)
+                self.optimizer = opt_class(epoch=250, pop_size=20)
         elif isinstance(optimizer, mu.Optimizer):
-            if type(optimizer_paras) is dict:
+            if isinstance(optimizer_paras, dict):
+                if "name" in optimizer_paras:  # Check if key exists and remove it
+                    optimizer.name = optimizer_paras.pop("name")
                 optimizer.set_parameters(optimizer_paras)
+            self.optimizer = optimizer
         else:
-            raise TypeError(f"optimizer needs to set as a string and supported by Mealpy library.")
-        return optimizer, optimizer_paras
+            raise TypeError(f"`optimizer` needs to set as a string and supported by Mealpy library.")
 
     def _set_obj(self, obj=None):
         if obj in list(self.SUPPORT["obj"].keys()):
@@ -146,10 +156,11 @@ class MhaKMeansTuner:
             mealpy_bound = [
                 mu.IntegerVar(lb=2, ub=max_clusters, name="n_clusters"),
                 mu.StringVar(valid_sets=('k-means++', 'random'), name="init"),
-                mu.MixedSetVar(valid_sets=(200, 250, 300, 350, 400, 450, 500), name="max_iter"),
+                mu.CategoricalVar(valid_sets=(200, 250, 300, 350, 400, 450, 500), name="max_iter"),
                 mu.StringVar(valid_sets=("lloyd", "elkan"), name="algorithm")
             ]
         problem = mu.KMeansParametersProblem(bounds=mealpy_bound, minmax=minmax, X=X, obj_name=self.obj, log_to=log_to, seed=self.seed)
+        self.set_optimizer_object(optimizer=self.optimizer, optimizer_paras=self.optimizer_paras)
         self.optimizer.solve(problem, mode=mode, n_workers=n_workers, termination=termination, seed=self.seed)
         self.best_parameters = self.optimizer.problem.decode_solution(self.optimizer.g_best.solution)
         self.best_estimator = self.optimizer.problem.get_model(self.optimizer.g_best.solution)
@@ -211,11 +222,12 @@ class MhaKCentersClustering:
                            "all_mean": "get_clusters_all_mean", "all_majority": "get_clusters_all_majority"},
         "obj": cluster.get_all_clustering_metrics(),
         "metrics": cluster.get_all_clustering_metrics(),
-        "optimizer": list(mu.get_all_optimizers().keys())
+        "optimizer": list(mu.get_all_optimizers(verbose=False).keys())
     }
     def __init__(self, optimizer=None, optimizer_paras=None, seed=20):
         self.seed = seed
-        self.optimizer, self.optimizer_paras = self._set_optimizer(optimizer, optimizer_paras)
+        self.optimizer = optimizer
+        self.optimizer_paras = optimizer_paras
         self.best_agent = None
         self.convergence = None
 
@@ -235,20 +247,20 @@ class MhaKCentersClustering:
         raise ValueError(f"MhaKCentersClustering doesn't support {name}.")
 
     def _set_optimizer(self, optimizer=None, optimizer_paras=None):
-        if optimizer_paras is None:
-            optimizer_paras = {}
-        if type(optimizer) is str:
-            opt_class = mu.get_optimizer_by_name(optimizer)
-            if type(optimizer_paras) is dict:
-                optimizer = opt_class(**optimizer_paras)
+        if isinstance(optimizer, str):
+            opt_class = mu.get_optimizer_by_class(optimizer)
+            if isinstance(optimizer_paras, dict):
+                self.optimizer = opt_class(**optimizer_paras)
             else:
-                optimizer = opt_class(epoch=100, pop_size=20)
+                self.optimizer = opt_class(epoch=250, pop_size=20)
         elif isinstance(optimizer, mu.Optimizer):
-            if type(optimizer_paras) is dict:
+            if isinstance(optimizer_paras, dict):
+                if "name" in optimizer_paras:  # Check if key exists and remove it
+                    optimizer.name = optimizer_paras.pop("name")
                 optimizer.set_parameters(optimizer_paras)
+            self.optimizer = optimizer
         else:
-            raise TypeError(f"optimizer needs to set as a string and supported by Mealpy library.")
-        return optimizer, optimizer_paras
+            raise TypeError(f"`optimizer` needs to set as a string and supported by Mealpy library.")
 
     def _set_obj(self, obj=None):
         if obj in list(self.SUPPORT["obj"].keys()):
@@ -308,6 +320,7 @@ class MhaKCentersClustering:
         ub = np.max(data.X, axis=0).tolist() * n_clusters
         bound = mu.FloatVar(lb=lb, ub=ub, name="center_weights")
         problem = mu.KCentersClusteringProblem(bounds=bound, minmax=minmax, data=data, obj_name=self.obj, log_to=log_to)
+        self._set_optimizer(self.optimizer, self.optimizer_paras)
         self.optimizer.solve(problem, mode=mode, n_workers=n_workers, termination=termination, seed=self.seed)
         self.convergence = self.optimizer.history.list_global_best_fit
         self.best_agent = self.optimizer.g_best
