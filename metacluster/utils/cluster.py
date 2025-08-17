@@ -34,7 +34,7 @@ def get_clusters_by_elbow(X, list_clusters=None, **kwargs):
         list_clusters = DEFAULT_LIST_CLUSTERS
     wcss = []
     for n_c in list_clusters:
-        kmeans = KMeans(n_clusters=n_c)
+        kmeans = KMeans(n_clusters=n_c, n_init="auto")
         kmeans.fit(X=X)
         wcss.append(kmeans.inertia_)
     x1, y1 = 2, wcss[0]
@@ -158,7 +158,7 @@ def get_clusters_by_silhouette_score(X, list_clusters=None, **kwargs):
     sil_max = 0
     sil_max_clusters = 2
     for n_clusters in list_clusters:
-        model = KMeans(n_clusters=n_clusters)
+        model = KMeans(n_clusters=n_clusters, n_init="auto")
         labels = model.fit_predict(X)
         sil_score = metrics.silhouette_score(X, labels)
         if sil_score > sil_max:
@@ -176,7 +176,7 @@ def get_clusters_by_davies_bouldin(X, list_clusters=None, **kwargs):
         list_clusters = DEFAULT_LIST_CLUSTERS
     list_dbs = []
     for n_clusters in list_clusters:
-        model = KMeans(n_clusters=n_clusters)
+        model = KMeans(n_clusters=n_clusters, n_init="auto")
         labels = model.fit_predict(X)
         db_score = metrics.davies_bouldin_score(X, labels)
         list_dbs.append(db_score)
@@ -192,7 +192,7 @@ def get_clusters_by_calinski_harabasz(X, list_clusters=None, **kwargs):
         list_clusters = DEFAULT_LIST_CLUSTERS
     list_chs = []
     for n_clusters in list_clusters:
-        model = KMeans(n_clusters=n_clusters)
+        model = KMeans(n_clusters=n_clusters, n_init="auto")
         labels = model.fit_predict(X)
         ch_score = metrics.calinski_harabasz_score(X, labels)
         list_chs.append(ch_score)
