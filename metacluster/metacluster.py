@@ -19,25 +19,25 @@ class MetaCluster:
 
     Parameters
     ----------
-    list_optimizer: list, default = None
+    list_optimizer: list, tuple, default = None
         List of strings that represent class optimizer or list of instance of Optimizer class from Mealpy library.
         Current supported optimizers, please check it here: https://github.com/thieu1995/mealpy
         If a custom optimizer is passed, make sure it is an instance of `Optimizer` class.
         Please use this to get supported optimizers: MetaCluster.get_support(name="optimizer")
 
-    list_paras: list, default=None
+    list_paras: list, tuple, default=None
         List of dictionaries that present the parameters of each Optimizer class.
         You can set it to None to use all of default parameters in Mealpy library.
 
-    list_obj : list, default=None
+    list_obj: list, tuple, default=None
         List of strings that represent objective name.
         Current supported objectives, please check it here: https://github.com/thieu1995/permetrics
         Please use this to get supported objectives: MetaCluster.get_support(name="obj")
 
-    n_trials : int, default=5
+    n_trials: int, default=5
         The number of runs for each optimizer for each objective
 
-    seed : int, default=20
+    seed: int, default=20
         Determines random number generation for the whole program. Use an int to make the randomness deterministic.
 
     Examples
@@ -76,7 +76,7 @@ class MetaCluster:
                            "all_mean": "get_clusters_all_mean", "all_majority": "get_clusters_all_majority"},
         "obj": cluster.get_all_clustering_metrics(),
         "metrics": cluster.get_all_clustering_metrics(),
-        "optimizer": list(mu.get_all_optimizers().keys())
+        "optimizer": list(mu.get_all_optimizers(verbose=False).keys())
     }
 
     FILENAME_LABELS = "result_labels"
@@ -87,8 +87,9 @@ class MetaCluster:
     HYPHEN_SYMBOL = "="
 
     def __init__(self, list_optimizer=None, list_paras=None, list_obj=None, n_trials=5, seed=20):
-        self.list_optimizer, self.list_paras = self._set_list_optimizer(list_optimizer, list_paras)
-        self.list_obj = self._set_list_function(list_obj, name="objectives")
+        self.list_optimizer = list_optimizer
+        self.list_paras = list_paras
+        self.list_obj = list_obj
         self.n_trials = n_trials
         self.seed = seed
 
@@ -118,7 +119,7 @@ class MetaCluster:
                     list_obj0.append(obj)
             if len(list_obj0) > 0:
                 print(f"MetaCluster doesn't support {name}: {list_obj0}")
-            return list_obj1
+            self.list_obj = list_obj1
 
     def _set_list_optimizer(self, list_optimizer=None, list_paras=None):
         if type(list_optimizer) not in (list, tuple):
@@ -131,18 +132,21 @@ class MetaCluster:
             list_opts = []
             for idx, opt in enumerate(list_optimizer):
                 if type(opt) is str:
-                    opt_class = mu.get_optimizer_by_name(opt)
+                    opt_class = mu.get_optimizer_by_class(opt)
                     if type(list_paras[idx]) is dict:
                         list_opts.append(opt_class(**list_paras[idx]))
                     else:
-                        list_opts.append(opt_class(epoch=100, pop_size=30))
+                        list_opts.append(opt_class(epoch=250, pop_size=20))
                 elif isinstance(opt, mu.Optimizer):
                     if type(list_paras[idx]) is dict:
+                        if "name" in list_paras[idx]:  # Check if key exists and remove it
+                            opt.name = list_paras[idx].pop("name")
                         opt.set_parameters(list_paras[idx])
                     list_opts.append(opt)
                 else:
                     raise TypeError(f"optimizer needs to set as a string and supported by Mealpy library.")
-        return list_opts, list_paras
+        self.list_optimizer = list_opts
+        self.list_paras = list_paras
 
     def __run__(self, optimizer, problem, mode="single", n_workers=2, termination=None):
         optimizer.solve(problem, mode=mode, n_workers=n_workers, termination=termination, seed=self.seed)
@@ -194,6 +198,10 @@ class MetaCluster:
         termination : dict or None, default = None
             The termination dictionary or an instance of Termination class. It is for Optimizer belongs to Mealpy library.
         """
+        ## Set up optimizer and objectives
+        self._set_list_optimizer(self.list_optimizer, self.list_paras)
+        self._set_list_function(self.list_obj, name="objectives")
+
         if data.y is not None:
             n_clusters = len(np.unique(data.y))
         else:
