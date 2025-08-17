@@ -6,7 +6,7 @@
 Welcome to MetaCluster's documentation!
 =======================================
 
-.. image:: https://img.shields.io/badge/release-1.2.0-yellow.svg
+.. image:: https://img.shields.io/badge/release-1.3.0-yellow.svg
    :target: https://github.com/thieu1995/metacluster/releases
 
 .. image:: https://img.shields.io/pypi/wheel/gensim.svg
@@ -20,9 +20,6 @@ Welcome to MetaCluster's documentation!
 
 .. image:: https://img.shields.io/pypi/status/metacluster.svg
    :target: https://img.shields.io/pypi/status/metacluster.svg
-
-.. image:: https://img.shields.io/pypi/dm/metacluster.svg
-   :target: https://img.shields.io/pypi/dm/metacluster.svg
 
 .. image:: https://github.com/thieu1995/metacluster/actions/workflows/publish-package.yaml/badge.svg
    :target: https://github.com/thieu1995/metacluster/actions/workflows/publish-package.yaml
