@@ -119,7 +119,7 @@ class MetaCluster:
                     list_obj0.append(obj)
             if len(list_obj0) > 0:
                 print(f"MetaCluster doesn't support {name}: {list_obj0}")
-            self.list_obj = list_obj1
+            return list_obj1
 
     def _set_list_optimizer(self, list_optimizer=None, list_paras=None):
         if type(list_optimizer) not in (list, tuple):
@@ -200,7 +200,8 @@ class MetaCluster:
         """
         ## Set up optimizer and objectives
         self._set_list_optimizer(self.list_optimizer, self.list_paras)
-        self._set_list_function(self.list_obj, name="objectives")
+        self.list_obj = self._set_list_function(self.list_obj, name="objectives")
+        self.list_metric = self._set_list_function(list_metric, name="metrics")
 
         if data.y is not None:
             n_clusters = len(np.unique(data.y))
@@ -211,7 +212,6 @@ class MetaCluster:
         lb = np.min(data.X, axis=0).tolist() * n_clusters
         ub = np.max(data.X, axis=0).tolist() * n_clusters
         bound = mu.FloatVar(lb=lb, ub=ub, name="center_weights")
-        self.list_metric = self._set_list_function(list_metric, name="metrics")
 
         ## Check parent directories
         self.save_path = f"{save_path}/{data.get_name()}"
@@ -280,31 +280,31 @@ class MetaCluster:
 
         Parameters
         ----------
-        figure_size : list, tuple, np.ndarray, None; default=None
+        figure_size : list, tuple, np.ndarray, None, default=None
             The size for saved figures. `None` means it will automatically set for you.
             Or you can pass (width, height) of figure based on pixel (100px to 1500px)
 
-        xlabel : str; default="Optimizer"
+        xlabel : str, default="Optimizer"
             The label for x coordinate of boxplot figures.
 
-        list_ylabel : list, tuple, np.ndarray, None; default=None
+        list_ylabel : list, tuple, np.ndarray, None, default=None
             The label for y coordinate of boxplot figures. Each boxplot corresponding to each metric in list_metric parameter,
             therefor, if you wish to change to y label, you need to pass a list of string represent all metrics in order of list_metric.
             None means it will use the name of metrics as the label
 
-        title : str; default="Boxplot of comparison models"
+        title : str, default="Boxplot of comparison models"
             The title of figures, it should be the same for all objectives since we have y coordinate already difference.
 
-        show_legend : bool; default=True
+        show_legend : bool, default=True
             Show the legend or not. For boxplots we can turn on or off this option, but not for convergence chart.
 
-        show_mean_only : bool; default=False
+        show_mean_only : bool, default=False
             You can show the mean value only or you can show all mean, std, median of the box by this parameter
 
-        exts : list, tuple, np.ndarray; default=(".png", ".pdf")
+        exts : list, tuple, np.ndarray, default=(".png", ".pdf")
             List of extensions of the figures. It is for multiple purposes such as latex (need ".pdf" format), word (need ".png" format).
 
-        file_name : str; default="boxplot"
+        file_name : str, default="boxplot"
             The prefix for filenames that will be saved.
         """
         if type(figure_size) in (list, tuple, np.ndarray):
@@ -332,25 +332,25 @@ class MetaCluster:
 
         Parameters
         ----------
-        figure_size : list, tuple, np.ndarray, None; default=None
+        figure_size : list, tuple, np.ndarray, None, default=None
             The size for saved figures. `None` means it will automatically set for you.
             Or you can pass (width, height) of figure based on pixel (100px to 1500px)
 
-        xlabel : str; default="Optimizer"
+        xlabel : str, default="Optimizer"
             The label for x coordinate of convergence figures.
 
-        list_ylabel : list, tuple, np.ndarray, None; default=None
+        list_ylabel : list, tuple, np.ndarray, None, default=None
             The label for y coordinate of convergence figures. Each convergence corresponding to each objective in list_obj,
             therefor, if you wish to change to y label, you need to pass a list of string represent all objectives in order of list_obj.
             None means it will use the name of objectives as the label
 
-        title : str; default="Convergence chart of comparison models"
+        title : str, default="Convergence chart of comparison models"
             The title of figures, it should be the same for all objectives since we have y coordinate already difference.
 
-        exts : list, tuple, np.ndarray; default=(".png", ".pdf")
+        exts : list, tuple, np.ndarray, default=(".png", ".pdf")
             List of extensions of the figures. It is for multiple purposes such as latex (need ".pdf" format), word (need ".png" format).
 
-        file_name : str; default="convergence"
+        file_name : str, default="convergence"
             The prefix for filenames that will be saved.
         """
         if type(figure_size) in (list, tuple, np.ndarray):
