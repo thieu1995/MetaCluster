@@ -19,7 +19,7 @@ class KMeansParametersProblem(Problem):
 
     def get_model(self, solution) -> KMeans:
         x_dict = self.decode_solution(solution)
-        kmeans = KMeans(random_state=self.seed)
+        kmeans = KMeans(random_state=self.seed, n_init="auto")
         kmeans.set_params(**x_dict)
         kmeans.fit(self.X)
         return kmeans
