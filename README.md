@@ -5,7 +5,7 @@
 
 ---
 
-[![GitHub release](https://img.shields.io/badge/release-1.2.0-yellow.svg)](https://github.com/thieu1995/metacluster/releases)
+[![GitHub release](https://img.shields.io/badge/release-1.3.0-yellow.svg)](https://github.com/thieu1995/metacluster/releases)
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/metacluster) 
 [![PyPI version](https://badge.fury.io/py/metacluster.svg)](https://badge.fury.io/py/metacluster)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/metacluster.svg)
@@ -66,25 +66,12 @@ Please include these citations if you plan to use this library:
 # Installation
 
 * Install the [current PyPI release](https://pypi.python.org/pypi/metacluster):
-```sh 
-$ pip install metacluster==1.2.0
+```bash
+$ pip install metacluster
 ```
 
-* Install directly from source code
-```sh 
-$ git clone https://github.com/thieu1995/metacluster.git
-$ cd metacluster
-$ python setup.py install
-```
-
-* In case, you want to install the development version from Github:
-```sh 
-$ pip install git+https://github.com/thieu1995/permetrics 
-```
-
-After installation, you can import MetaCluster as any other Python module:
-
-```sh
+After installation, check the version:
+```bash
 $ python
 >>> import metacluster
 >>> metacluster.__version__
@@ -98,7 +85,7 @@ Let's go through some basic examples from here:
 
 #### 1. First, load dataset. You can use the available datasets from MetaCluster:
 
-```python 
+```python
 # Load available dataset from MetaCluster
 from metacluster import get_dataset
 
@@ -213,7 +200,7 @@ More examples can be found [here](/examples)
 
 ### Supported links 
 
-```code 
+```code
 1. https://jtemporal.com/kmeans-and-elbow-method/
 2. https://medium.com/@masarudheena/4-best-ways-to-find-optimal-number-of-clusters-for-clustering-with-python-code-706199fa957c
 3. https://github.com/minddrummer/gap/blob/master/gap/gap.py
