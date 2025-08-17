@@ -5,19 +5,17 @@
 # --------------------------------------------------%
 
 import numpy as np
-from mealpy import Problem, FloatVar, get_all_optimizers, get_optimizer_by_name, Optimizer
-from mealpy import FloatVar, StringVar, BoolVar, IntegerVar, MixedSetVar, Tuner
 from permetrics import ClusteringMetric
 from sklearn.cluster import KMeans
+from mealpy import *
 
 
 class KMeansParametersProblem(Problem):
     def __init__(self, bounds=None, minmax="min", X=None, obj_name=None, seed=None, **kwargs):
-        ## X is assigned first because when initialize the Problem class, we need to check the output of obj_func
+        super().__init__(bounds, minmax, **kwargs)
         self.X = X
         self.obj_name = obj_name
         self.seed = seed
-        super().__init__(bounds, minmax, **kwargs)
 
     def get_model(self, solution) -> KMeans:
         x_dict = self.decode_solution(solution)
@@ -36,10 +34,9 @@ class KMeansParametersProblem(Problem):
 
 class KCentersClusteringProblem(Problem):
     def __init__(self, bounds=None, minmax=None, data=None, obj_name=None, **kwargs):
-        ## data is assigned first because when initialize the Problem class, we need to check the output of obj_func
+        super().__init__(bounds, minmax, **kwargs)
         self.data = data
         self.obj_name = obj_name
-        super().__init__(bounds, minmax, **kwargs)
 
     @staticmethod
     def get_y_pred(X, solution):
