@@ -4,18 +4,33 @@
 #       Github: https://github.com/thieu1995        %
 # --------------------------------------------------%
 
-from setuptools import setup, find_packages
+import setuptools
+import os
+import re
+
+
+with open("requirements.txt", encoding='utf-8') as f:
+    REQUIREMENTS = f.read().splitlines()
+
+
+def get_version():
+    init_path = os.path.join(os.path.dirname(__file__), 'metacluster', '__init__.py')
+    with open(init_path, 'r', encoding='utf-8') as f:
+        init_content = f.read()
+    version_match = re.search(r"^__version__ = ['\"]([^'\"]+)['\"]", init_content, re.M)
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError("Unable to find version string.")
 
 
 def readme():
     with open('README.md', encoding='utf-8') as f:
-        README = f.read()
-    return README
+        res = f.read()
+    return res
 
-
-setup(
+setuptools.setup(
     name="metacluster",
-    version="1.2.0",
+    version=get_version(),
     author="Thieu",
     author_email="nguyenthieu2102@gmail.com",
     description="MetaCluster: An Open-Source Python Library for Metaheuristic-based Clustering Problems",
@@ -40,7 +55,7 @@ setup(
         'Change Log': 'https://github.com/thieu1995/metacluster/blob/master/ChangeLog.md',
         'Forum': 'https://t.me/+fRVCJGuGJg1mNDg1',
     },
-    packages=find_packages(exclude=['tests*', 'examples*']),
+    packages=setuptools.find_packages(exclude=['tests*', 'examples*']),
     include_package_data=True,
     license="GPLv3",
     classifiers=[
@@ -52,11 +67,12 @@ setup(
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Natural Language :: English",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "Topic :: System :: Benchmark",
         "Topic :: Scientific/Engineering",
         "Topic :: Scientific/Engineering :: Mathematics",
@@ -69,11 +85,9 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Utilities",
     ],
-    install_requires=["numpy>=1.17.1", "scipy>=1.7.1", "scikit-learn>=1.0.2",
-                      "pandas>=1.3.5", "mealpy>=3.0.1", "permetrics>=1.5.0",
-                      "plotly>=5.10.0", "kaleido>=0.2.1"],
+    install_requires=REQUIREMENTS,
     extras_require={
-        "dev": ["pytest>=7.1.2", "pytest-cov==4.0.0", "flake8>=4.0.1"],
+        "dev": ["pytest>=7.1.2", "twine>=4.0.1", "pytest-cov==4.0.0", "flake8>=4.0.1"],
     },
     python_requires='>=3.7',
 )
